@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.17
+//compileJava.options.fork = true;
+//compileJava.options.forkOptions.executable = 'C:/Program Files/Java/jdk1.8.0_341/bin/javac.exe';
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:23.0.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testImplementation files('spigot-1.18.2.jar')
+}
+
+test {
+    useJUnitPlatform()
+}
