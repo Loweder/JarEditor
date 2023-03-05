@@ -87,6 +87,26 @@ public class Method {
                     indexMap[1][i] = indexList.get(i);
                 }
                 code.instructions = listInstructions.toArray(new Instruction[0]);
+                for (int i = 0; i < code.instructions.length; i++) {
+                    if (code.instructions[i] instanceof Instruction.Goto) {
+                        Instruction.Goto instruction = (Instruction.Goto) code.instructions[i];
+                        instruction.offset = indexMap[0][indexMap[1][i] + instruction.offset];
+                    } else if (code.instructions[i] instanceof Instruction.If) {
+                        Instruction.If instruction = (Instruction.If) code.instructions[i];
+                        instruction.offset = indexMap[0][indexMap[1][i] + instruction.offset];
+                    } else if (code.instructions[i] instanceof Instruction.TableSwitch) {
+                        Instruction.TableSwitch instruction = (Instruction.TableSwitch) code.instructions[i];
+                        instruction.defaultOffset = indexMap[0][indexMap[1][i] + instruction.defaultOffset];
+                        for (int i3 = 0; i3 < instruction.caseOffsets.length; i3++) {
+                            instruction.caseOffsets[i3] = indexMap[0][indexMap[1][i] + instruction.caseOffsets[i3]];
+                        }
+                    } else if (code.instructions[i] instanceof Instruction.LookupSwitch) {
+                        Instruction.LookupSwitch instruction = (Instruction.LookupSwitch) code.instructions[i];
+                        instruction.defaultOffset = indexMap[0][indexMap[1][i] + instruction.defaultOffset];
+                        for (Instruction.LookupSwitch.Pair pair : instruction.pairs)
+                            pair.offset = indexMap[0][indexMap[1][i] + pair.offset];
+                    }
+                }
                 code.exceptionHandlers = new ExceptionHandler[in.readUnsignedShort()];
                 for (int i = 0; i < code.exceptionHandlers.length; i++) code.exceptionHandlers[i] = new ExceptionHandler(in, cp, indexMap[0]);
                 int attributeLength = in.readUnsignedShort();
@@ -419,6 +439,25 @@ public class Method {
         for (int i = 0; i < indexList.size(); i++) {
             indexMap[0][indexList.get(i)] = i;
             indexMap[1][i] = indexList.get(i);
+        }
+        for (int i = 0; i < code.instructions.length; i++) {
+            if (code.instructions[i] instanceof Instruction.Goto) {
+                Instruction.Goto instruction = (Instruction.Goto) code.instructions[i];
+                instruction.offset = indexMap[1][instruction.offset] - indexMap[1][i];
+            } else if (code.instructions[i] instanceof Instruction.If) {
+                Instruction.If instruction = (Instruction.If) code.instructions[i];
+                instruction.offset = indexMap[1][instruction.offset] - indexMap[1][i];
+            } else if (code.instructions[i] instanceof Instruction.TableSwitch) {
+                Instruction.TableSwitch instruction = (Instruction.TableSwitch) code.instructions[i];
+                instruction.defaultOffset = indexMap[1][instruction.defaultOffset] - indexMap[1][i];
+                for (int i3 = 0; i3 < instruction.caseOffsets.length; i3++)
+                    instruction.caseOffsets[i3] = indexMap[1][instruction.caseOffsets[i3]] - indexMap[1][i];
+            } else if (code.instructions[i] instanceof Instruction.LookupSwitch) {
+                Instruction.LookupSwitch instruction = (Instruction.LookupSwitch) code.instructions[i];
+                instruction.defaultOffset = indexMap[1][instruction.defaultOffset] - indexMap[1][i];
+                for (Instruction.LookupSwitch.Pair pair : instruction.pairs)
+                    pair.offset = indexMap[1][pair.offset] - indexMap[1][i];
+            }
         }
         out.writeInt(length);
         for (Instruction instruction : code.instructions) instruction.toStream(out, cp);

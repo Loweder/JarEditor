@@ -17,9 +17,10 @@ dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testImplementation files('spigot-1.18.2.jar')
+    testImplementation files('server/spigot-1.18.2.jar')
 }
 
 test {
     useJUnitPlatform()
+    exclude '**/*'
 }

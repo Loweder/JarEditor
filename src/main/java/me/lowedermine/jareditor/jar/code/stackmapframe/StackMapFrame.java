@@ -55,11 +55,11 @@ public abstract class StackMapFrame {
                 case 5:
                     return new Null();
                 case 6:
-                    return new UninitThis();
+                    return new UnInitThis();
                 case 7:
                     return new Object(in, cp);
                 case 8:
-                    return new Uninit(in, indexMap);
+                    return new UnInit(in, indexMap);
                 default:
                     return null;
             }
@@ -116,7 +116,7 @@ public abstract class StackMapFrame {
             }
         }
 
-        public static class UninitThis extends VerificationInfo {
+        public static class UnInitThis extends VerificationInfo {
             @Override
             public void toStream(DataOutputStream out, ConstantPool cp, int[] indexMap) throws IOException {
                 out.writeByte(6);
@@ -147,10 +147,10 @@ public abstract class StackMapFrame {
             }
         }
 
-        public static class Uninit extends VerificationInfo {
+        public static class UnInit extends VerificationInfo {
             public int offset;
 
-            public Uninit(DataInputStream in, int[] indexMap) throws IOException {
+            public UnInit(DataInputStream in, int[] indexMap) throws IOException {
                 offset = indexMap[in.readUnsignedShort()];
             }
 

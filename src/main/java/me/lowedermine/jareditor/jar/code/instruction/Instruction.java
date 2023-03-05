@@ -1379,9 +1379,6 @@ public abstract class Instruction {
             constant = cp.ro(index);
             wide = constant instanceof Double || constant instanceof Long;
         }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {}
     }
 
     public static class LoadConst extends Instruction {
@@ -1422,9 +1419,6 @@ public abstract class Instruction {
                 cp.add(new BootstrapFieldInfo(methods.indexOf(fConstant), info));
             }
         }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {}
     }
 
     public static class AccessLocal extends Instruction {
@@ -1518,7 +1512,7 @@ public abstract class Instruction {
         public If(Condition condition, Type type, DataInputStream str) throws IOException {
             this.condition = condition;
             this.type = type;
-            offset = str.readUnsignedShort();
+            offset = str.readShort();
         }
     }
 
@@ -1528,7 +1522,7 @@ public abstract class Instruction {
         public int offset;
 
         public Goto(boolean isJump, boolean wide, DataInputStream str) throws IOException {
-            this.offset = wide ? str.readInt() : str.readUnsignedShort();
+            this.offset = wide ? str.readInt() : str.readShort();
             this.isJump = isJump;
             this.wide = wide;
         }
@@ -1671,11 +1665,6 @@ public abstract class Instruction {
             info = (BootstrapMethodInfo) cp.ro(str.readUnsignedShort());
             str.readUnsignedShort();
         }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {
-            cp.add(info);
-        }
     }
 
     public static class InvokeDynamic extends Instruction {
@@ -1700,9 +1689,6 @@ public abstract class Instruction {
             if (!methods.contains(method)) methods.add(method);
             cp.add(new BootstrapMethodInfo(methods.indexOf(method), info));
         }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {}
     }
 
     public static class New extends Instruction {

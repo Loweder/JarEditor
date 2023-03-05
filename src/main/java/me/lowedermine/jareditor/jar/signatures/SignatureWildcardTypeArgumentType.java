@@ -11,4 +11,9 @@ public class SignatureWildcardTypeArgumentType implements ISignatureTypeArgument
         if (this == o) return true;
         return o != null && getClass() == o.getClass();
     }
+
+    @Override
+    public int hashCode() {
+        return 1;
+    }
 }

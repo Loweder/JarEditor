@@ -1,12 +1,13 @@
 package me.lowedermine.jareditor;
 
-import me.lowedermine.jareditor.editing.preloads.Renamer;
-import me.lowedermine.jareditor.jar.ClassFile;
-import me.lowedermine.jareditor.jar.infos.ClassInfo;
 import me.lowedermine.jareditor.editing.preloads.IEditor;
 import me.lowedermine.jareditor.editing.preloads.editors.ClassRenamer;
+import me.lowedermine.jareditor.jar.ClassFile;
+import me.lowedermine.jareditor.jar.infos.ClassInfo;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.security.SecureClassLoader;
 import java.util.*;
@@ -19,7 +20,7 @@ public class EditingClassloader extends SecureClassLoader {
 
     private final List<String> exceptions = new ArrayList<>();
     private final Map<String, List<IEditor>> editors = new HashMap<>();
-    private final List<Renamer<?, ?>> renamers = new ArrayList<>();
+    private final List<IEditor> globalEditors = new ArrayList<>();
 
     private final Map<String, byte[]> loadedResource = new ConcurrentHashMap<>(1000);
     private final Set<String> missedResource = new HashSet<>();
@@ -47,15 +48,16 @@ public class EditingClassloader extends SecureClassLoader {
                         for (String preloadName :  instance.getPreloads()) {
                             try {
                                 Class<?> preload = parent.loadClass(preloadName);
-                                if (Renamer.class.isAssignableFrom(preload)) {
-                                    renamers.add((Renamer<?, ?>) preload.getDeclaredConstructor().newInstance());
-                                } else if (IEditor.class.isAssignableFrom(preload)) {
+                                if (IEditor.class.isAssignableFrom(preload)) {
                                     IEditor editor = (IEditor) preload.getDeclaredConstructor().newInstance();
                                     List<String> edited = editor.getEdited();
-                                    for (String ed : edited) {
-                                        editors.putIfAbsent(ed, new ArrayList<>());
-                                        editors.get(ed).add(editor);
-                                    }
+                                    if (edited == null)
+                                        globalEditors.add(editor);
+                                    else
+                                        for (String ed : edited) {
+                                            editors.putIfAbsent(ed, new ArrayList<>());
+                                            editors.get(ed).add(editor);
+                                        }
                                 } else {
                                     throw new IllegalArgumentException("Preload must implement any of me.lowedermine.jareditor.preloads.");
                                 }
@@ -113,7 +115,7 @@ public class EditingClassloader extends SecureClassLoader {
         try (InputStream classStream = classResource.openStream()) {
             ClassFile clazz = new ClassFile(classStream);
             if (editable) {
-                for (Renamer<?, ?> renamer : renamers) clazz = renamer.edit(clazz);
+                for (IEditor editor : globalEditors) clazz = editor.edit(clazz);
                 if (editors.containsKey(name)) for (IEditor editor : editors.get(name)) clazz = editor.edit(clazz);
             }
             try (ByteArrayOutputStream classOutput = new ByteArrayOutputStream()) {
@@ -152,7 +154,7 @@ public class EditingClassloader extends SecureClassLoader {
         System.out.println("Looking for: " + name);
         ClassInfo unmapped = new ClassInfo(name);
         ClassInfo mapped = new ClassInfo(name);
-        for (Renamer<?, ?> renamer : renamers) {
+        for (IEditor renamer : globalEditors) {
             if (renamer instanceof ClassRenamer) {
                 ClassRenamer classRenamer = (ClassRenamer) renamer;
                 ClassInfo newUnmapped = classRenamer.unmap(unmapped);

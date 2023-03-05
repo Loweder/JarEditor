@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 public class TestHTTP {
+    public boolean running = true;
     @Test
     public void test() throws IOException {
         int port = 800;
@@ -21,7 +22,7 @@ public class TestHTTP {
 
         System.out.println("Listening on port " + port);
 
-        while (true) {
+        while (running) {
             Socket clientSocket = serverSocket.accept();
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             OutputStream out = clientSocket.getOutputStream();
