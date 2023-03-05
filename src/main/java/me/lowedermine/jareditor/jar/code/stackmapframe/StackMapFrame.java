@@ -20,7 +20,7 @@ public abstract class StackMapFrame {
         } else if (type == 247) {
             return new StackMapFrameSameLocalsExtended(in, cp, prevOffset, indexMap);
         } else if (type > 247 && type < 251) {
-            return new StackMapFrameChop(type, in);
+            return new StackMapFrameChop(type, in, prevOffset, indexMap);
         } else if (type == 251) {
             return new StackMapFrameSameExtended(in, prevOffset, indexMap);
         } else if (type > 251 && type < 255) {

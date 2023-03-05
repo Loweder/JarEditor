@@ -25,6 +25,7 @@ public class StackMapFrameAppend extends StackMapFrame {
     public void toStream(DataOutputStream out, ConstantPool cp, int prevOffset, int[] indexMap) throws IOException {
         out.writeByte(251 + locals.length);
         out.writeShort(indexMap[offset] - prevOffset);
+        for (VerificationInfo local : locals) local.toStream(out,cp, indexMap);
     }
 
     @Override

@@ -8,7 +8,7 @@ public class BootstrapMethodInfo extends BootstrapMemberInfo {
     }
 
     @Override
-    public MemberInfo getInfo() {
+    public MethodInfo getInfo() {
         return new MethodInfo(name, (DescriptorMethod) desc);
     }
 }

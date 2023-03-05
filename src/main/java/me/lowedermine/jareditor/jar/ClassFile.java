@@ -2,6 +2,7 @@ package me.lowedermine.jareditor.jar;
 
 import me.lowedermine.jareditor.jar.annotations.Annotation;
 import me.lowedermine.jareditor.jar.annotations.AnnotationType;
+import me.lowedermine.jareditor.jar.code.instruction.Instruction;
 import me.lowedermine.jareditor.jar.constants.ConstantPool;
 import me.lowedermine.jareditor.jar.constants.ConstantPoolBuilder;
 import me.lowedermine.jareditor.jar.descriptors.DescriptorField;
@@ -11,6 +12,9 @@ import me.lowedermine.jareditor.utils.MyCloneable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ClassFile {
     public ClassInfoSegment info = new ClassInfoSegment();
@@ -47,11 +51,25 @@ public class ClassFile {
             main.methods = new Method[methodCount];
             for (int i = 0; i < main.methods.length; i++) main.methods[i] = new Method(in, cp);
         }
+        BootstrapMethod[] bootstrapMethods = null;
         int attributesCount = in.readUnsignedShort();
-        for (int i = 0; i < attributesCount; i++) parseAttribute(in, cp);
+        for (int i = 0; i < attributesCount; i++) {
+            Object obj = parseAttribute(in, cp);
+            if (obj instanceof BootstrapMethod[])
+                bootstrapMethods = (BootstrapMethod[]) obj;
+        }
+        if (main != null)
+            if (bootstrapMethods != null && main.methods != null)
+                for (Method method : main.methods)
+                    if (method.code != null)
+                        for (int i = 0; i < method.code.instructions.length; i++)
+                            if (method.code.instructions[i] instanceof Instruction.RawInvokeDynamic)
+                                method.code.instructions[i] = new Instruction.InvokeDynamic((Instruction.RawInvokeDynamic) method.code.instructions[i], bootstrapMethods);
+                            else if (method.code.instructions[i] instanceof Instruction.RawLoadConst)
+                                method.code.instructions[i] = new Instruction.LoadConst((Instruction.RawLoadConst) method.code.instructions[i], bootstrapMethods);
     }
 
-    private void parseAttribute(DataInputStream in, ConstantPool cp) throws IOException {
+    private Object parseAttribute(DataInputStream in, ConstantPool cp) throws IOException {
         String name = (String) cp.ro(in.readUnsignedShort());
         in.readInt();
         switch (name) {
@@ -65,10 +83,9 @@ public class ClassFile {
                 info.signature = new SignatureClass((String) cp.ro(in.readUnsignedShort()));
                 break;
             case "BootstrapMethods":
-                main = main == null ? new MainDataSegment() : main;
-                main.bootstrapMethods = new BootstrapMethod[in.readUnsignedShort()];
-                for (int i = 0; i < main.bootstrapMethods.length; i++) main.bootstrapMethods[i] = new BootstrapMethod(in, cp);
-                break;
+                BootstrapMethod[] bootstrapMethods = new BootstrapMethod[in.readUnsignedShort()];
+                for (int i = 0; i < bootstrapMethods.length; i++) bootstrapMethods[i] = new BootstrapMethod(in, cp);
+                return bootstrapMethods;
             case "Record":
                 main = main == null ? new MainDataSegment() : main;
                 main.recordComponents = new RecordComponent[in.readUnsignedShort()];
@@ -143,6 +160,7 @@ public class ClassFile {
                 debug.sourceDebugExtension = new String(bytes, StandardCharsets.UTF_8);
                 break;
         }
+        return null;
     }
 
     public void toPool(ConstantPoolBuilder cp) {
@@ -164,13 +182,10 @@ public class ClassFile {
         if (main != null) {
             if (main.fields != null)
                 for (Field field : main.fields) field.toPool(cp);
-            if (main.methods != null)
-                for (Method method : main.methods) method.toPool(cp);
-            if (main.bootstrapMethods != null) {
-                cp.add("BootstrapMethods");
-                for (BootstrapMethod bootstrapMethod : main.bootstrapMethods) bootstrapMethod.toPool(cp);
-            }
-            if (main.recordComponents != null) {
+            if (main.methods != null) {
+                List<BootstrapMethod> methods = new ArrayList<>();
+                for (Method method : main.methods) method.toPool(cp, methods);
+            } if (main.recordComponents != null) {
                 cp.add("Record");
                 for (RecordComponent component : main.recordComponents) component.toPool(cp);
             }
@@ -244,6 +259,7 @@ public class ClassFile {
     public void toStream(OutputStream stream) throws IOException {
         ConstantPoolBuilder cpb = new ConstantPoolBuilder();
         toPool(cpb);
+        List<BootstrapMethod> bootstrapMethodList = new ArrayList<>();
         ConstantPool cp = cpb.build();
         DataOutputStream out = new DataOutputStream(stream);
         out.writeInt(0xCAFEBABE);
@@ -268,7 +284,15 @@ public class ClassFile {
             }
             if (main.methods != null) {
                 out.writeShort(main.methods.length);
-                for (Method method : main.methods) method.toStream(out, cp);
+                for (Method method : main.methods) {
+                    if (method.code != null)
+                        for (int i = 0; i < method.code.instructions.length; i++)
+                            if (method.code.instructions[i] instanceof Instruction.InvokeDynamic)
+                                method.code.instructions[i] = ((Instruction.InvokeDynamic) method.code.instructions[i]).toRaw(bootstrapMethodList);
+                            else if (method.code.instructions[i] instanceof Instruction.LoadConst)
+                                method.code.instructions[i] = ((Instruction.LoadConst) method.code.instructions[i]).toRaw(bootstrapMethodList);
+                    method.toStream(out, cp);
+                }
             } else {
                 out.writeShort(0);
             }
@@ -287,10 +311,10 @@ public class ClassFile {
                 attributes++;
             }
         }
+        if (!bootstrapMethodList.isEmpty()) {
+            attributes++;
+        }
         if (main != null) {
-            if (main.bootstrapMethods != null) {
-                attributes++;
-            }
             if (main.recordComponents != null) {
                 attributes++;
             }
@@ -361,16 +385,15 @@ public class ClassFile {
                 out.writeShort(cp.indexOf(info.signature.toRaw()));
             }
         }
+        if (!bootstrapMethodList.isEmpty()) {
+            out.writeShort(cp.indexOf("BootstrapMethods"));
+            int length = 2;
+            for (BootstrapMethod bootstrapMethod : bootstrapMethodList) length += bootstrapMethod.toLength();
+            out.writeInt(length);
+            out.writeShort(bootstrapMethodList.size());
+            for (BootstrapMethod bootstrapMethod : bootstrapMethodList) bootstrapMethod.toStream(out, cp);
+        }
         if (main != null) {
-            if (main.bootstrapMethods != null) {
-                out.writeShort(cp.indexOf("BootstrapMethods"));
-                int length = 2;
-                for (BootstrapMethod bootstrapMethod : main.bootstrapMethods) length += bootstrapMethod.toLength();
-                out.writeInt(length);
-                out.writeShort(main.bootstrapMethods.length);
-                for (BootstrapMethod bootstrapMethod : main.bootstrapMethods) bootstrapMethod.toStream(out, cp);
-
-            }
             if (main.recordComponents != null) {
                 out.writeShort(cp.indexOf("Record"));
                 int length = 2;
@@ -490,11 +513,9 @@ public class ClassFile {
         public boolean synthetic = false;
     }
 
-    //TODO: remove bootstrap_methods
     public static class MainDataSegment {
         public Field[] fields = null;
         public Method[] methods = null;
-        public BootstrapMethod[] bootstrapMethods = null;
         public RecordComponent[] recordComponents = null;
     }
 
@@ -553,6 +574,23 @@ public class ClassFile {
             return 4 + (args.length * 2);
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            BootstrapMethod that = (BootstrapMethod) o;
+            return Arrays.equals(args, that.args);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + Arrays.hashCode(args);
+            return result;
+        }
+
+        @Override
         public BootstrapMethod clone() {
             BootstrapMethod clone = (BootstrapMethod) super.clone();
             clone.args = args.clone();
@@ -777,7 +815,8 @@ public class ClassFile {
         public void toPool(ConstantPoolBuilder cp) {
             cp.add(info.info.name);
             cp.add(info.info.desc.toRaw());
-            cp.add(info.signature.toRaw());
+            if (info.signature != null)
+                cp.add(info.signature.toRaw());
             if (annotation != null) {
                 if (annotation.visible != null) {
                     cp.add("RuntimeVisibleAnnotations");
@@ -855,21 +894,23 @@ public class ClassFile {
 
         public int toLength() {
             int length = 6;
-            if (annotation.visible != null) {
-                length += 6;
-                for (Annotation annotation1 : annotation.visible) length += annotation1.toLength();
-            }
-            if (annotation.invisible != null) {
-                length += 6;
-                for (Annotation annotation1 : annotation.invisible) length += annotation1.toLength();
-            }
-            if (annotation.visibleType != null) {
-                length += 6;
-                for (AnnotationType annotation1 : annotation.visibleType) length += annotation1.toLength();
-            }
-            if (annotation.invisibleType != null) {
-                length += 6;
-                for (AnnotationType annotation1 : annotation.invisibleType) length += annotation1.toLength();
+            if (annotation != null) {
+                if (annotation.visible != null) {
+                    length += 6;
+                    for (Annotation annotation1 : annotation.visible) length += annotation1.toLength();
+                }
+                if (annotation.invisible != null) {
+                    length += 6;
+                    for (Annotation annotation1 : annotation.invisible) length += annotation1.toLength();
+                }
+                if (annotation.visibleType != null) {
+                    length += 6;
+                    for (AnnotationType annotation1 : annotation.visibleType) length += annotation1.toLength();
+                }
+                if (annotation.invisibleType != null) {
+                    length += 6;
+                    for (AnnotationType annotation1 : annotation.invisibleType) length += annotation1.toLength();
+                }
             }
             return length;
         }

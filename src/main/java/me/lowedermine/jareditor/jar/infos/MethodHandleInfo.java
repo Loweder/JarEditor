@@ -21,7 +21,7 @@ public class MethodHandleInfo extends ClassMemberInfo {
     }
 
     @Override
-    public MemberInfo getInfo() {
+    public ClassMemberInfo getInfo() {
         return desc instanceof DescriptorMethod ? new ClassMethodInfo(clazz, new MethodInfo(name, (DescriptorMethod) desc), interfaceMethod) : new ClassFieldInfo(clazz, new FieldInfo(name, (DescriptorField) desc));
     }
 

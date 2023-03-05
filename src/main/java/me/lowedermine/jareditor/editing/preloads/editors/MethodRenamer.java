@@ -59,12 +59,6 @@ public abstract class MethodRenamer extends Renamer<ClassMethodInfo, String> {
                 for (ClassFile.RecordComponent component : file.main.recordComponents)
                     mapRecordComponent(component);
             }
-            if (file.main.bootstrapMethods != null) {
-                for (ClassFile.BootstrapMethod method : file.main.bootstrapMethods) {
-                    mapConstant(method);
-                    for (Object arg : method.args) mapConstant(arg);
-                }
-            }
         }
         if (file.annotation != null) {
             if (file.annotation.visible != null) {
@@ -134,11 +128,18 @@ public abstract class MethodRenamer extends Renamer<ClassMethodInfo, String> {
         }
     }
     private void mapInstruction(Instruction instruction) {
-        if (instruction instanceof Instruction.LoadConst)
+        if (instruction instanceof Instruction.LoadConst) {
             mapConstant(((Instruction.LoadConst) instruction).constant);
-        else if (instruction instanceof Instruction.InvokeMethod)
+            if (((Instruction.LoadConst) instruction).constant instanceof ClassFile.BootstrapMethod) {
+                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConst) instruction).constant).args)
+                    mapConstant(arg);
+            }
+        } else if (instruction instanceof Instruction.InvokeMethod)
             ((Instruction.InvokeMethod) instruction).info.name = map(((Instruction.InvokeMethod) instruction).info);
-
+        else if (instruction instanceof Instruction.InvokeDynamic) {
+            mapConstant(((Instruction.InvokeDynamic) instruction).method);
+            for (Object arg : ((Instruction.InvokeDynamic) instruction).method.args) mapConstant(arg);
+        }
     }
     private void mapRecordComponent(ClassFile.RecordComponent component) {
         if (component.annotation != null) {
@@ -200,7 +201,5 @@ public abstract class MethodRenamer extends Renamer<ClassMethodInfo, String> {
             ((ClassMethodInfo) constant).name = map((ClassMethodInfo) constant);
         } else if (constant instanceof MethodHandleInfo)
             mapConstant(((MethodHandleInfo) constant).getInfo());
-//        else if (constant instanceof BootstrapMethodInfo)
-//            ((BootstrapMethodInfo) constant).info.name = map(new ClassMethodInfo(name, ((BootstrapMethodInfo) constant).info));
     }
 }

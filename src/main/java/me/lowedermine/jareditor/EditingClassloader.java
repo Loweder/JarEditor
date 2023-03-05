@@ -125,14 +125,14 @@ public class EditingClassloader extends SecureClassLoader {
 
 //            byte[] sourceData = new byte[classStream.available()];
 //            if (classStream.read(sourceData) != sourceData.length) throw new RuntimeException("Failed to read class");
-//            ClassFile clazz = null;
+//            ClassFile clazz;
+//            for (byte sourceDatum : sourceData) System.out.print(sourceDatum + " ");
+//            System.out.println();
 //            try (ByteArrayInputStream stream = new ByteArrayInputStream(sourceData)) {
 //                clazz = new ClassFile(stream);
 //            }
 //            try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
 //                clazz.toStream(stream);
-//                for (byte sourceDatum : sourceData) System.out.print(sourceDatum + " ");
-//                System.out.println();
 //                byte[] data = stream.toByteArray();
 //                for (byte datum : data) System.out.print(datum + " ");
 //                System.out.println();

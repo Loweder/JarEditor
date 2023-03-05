@@ -57,12 +57,6 @@ public abstract class ClassRenamer extends Renamer<ClassInfo, ClassInfo> {
                 for (Field field : file.main.fields) mapField(field);
             if (file.main.methods != null)
                 for (Method method : file.main.methods) mapMethod(method);
-            if (file.main.bootstrapMethods != null) {
-                for (ClassFile.BootstrapMethod bootstrapMethod : file.main.bootstrapMethods) {
-                    mapConstant(bootstrapMethod);
-                    for (Object arg : bootstrapMethod.args) mapConstant(arg);
-                }
-            }
             if (file.main.recordComponents != null) {
                 for (ClassFile.RecordComponent recordComponent : file.main.recordComponents)
                     mapRecordComponent(recordComponent);
@@ -188,14 +182,20 @@ public abstract class ClassRenamer extends Renamer<ClassInfo, ClassInfo> {
         }
     }
     private void mapInstruction(Instruction instruction) {
-        if (instruction instanceof Instruction.LoadConst)
+        if (instruction instanceof Instruction.LoadConst) {
             mapConstant(((Instruction.LoadConst) instruction).constant);
-        else if (instruction instanceof Instruction.AccessField) {
+            if (((Instruction.LoadConst) instruction).constant instanceof ClassFile.BootstrapMethod) {
+                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConst) instruction).constant).args) mapConstant(arg);
+                mapDescriptor(((Instruction.LoadConst) instruction).info.desc);
+            }
+        } else if (instruction instanceof Instruction.AccessField) {
             mapConstant(((Instruction.AccessField) instruction).info);
         } else if (instruction instanceof Instruction.InvokeMethod) {
             mapConstant(((Instruction.InvokeMethod) instruction).info);
-        } else if (instruction instanceof Instruction.RawInvokeDynamic) {
-            mapConstant(((Instruction.RawInvokeDynamic) instruction).info);
+        } else if (instruction instanceof Instruction.InvokeDynamic) {
+            mapConstant(((Instruction.InvokeDynamic) instruction).method);
+            for (Object arg : ((Instruction.InvokeDynamic) instruction).method.args) mapConstant(arg);
+            mapDescriptor(((Instruction.InvokeDynamic) instruction).info.desc);
         } else if (instruction instanceof Instruction.New)
             ((Instruction.New) instruction).info = map(((Instruction.New) instruction).info);
         else if (instruction instanceof Instruction.CheckCast)
@@ -324,11 +324,7 @@ public abstract class ClassRenamer extends Renamer<ClassInfo, ClassInfo> {
         } else if (constant instanceof ClassMethodInfo) {
             ((ClassMethodInfo) constant).clazz = map(((ClassMethodInfo) constant).clazz);
             mapDescriptor(((ClassMethodInfo) constant).desc);
-        } else if (constant instanceof BootstrapFieldInfo)
-                mapDescriptor(((BootstrapFieldInfo) constant).desc);
-        else if (constant instanceof BootstrapMethodInfo)
-                mapDescriptor(((BootstrapMethodInfo) constant).desc);
-        else if (constant instanceof FieldInfo)
+        } else if (constant instanceof FieldInfo)
             mapDescriptor(((FieldInfo) constant).desc);
         else if (constant instanceof MethodInfo)
             mapDescriptor(((MethodInfo) constant).desc);

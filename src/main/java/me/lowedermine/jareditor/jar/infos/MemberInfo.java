@@ -35,7 +35,6 @@ public abstract class MemberInfo implements MyCloneable {
     public MemberInfo clone() {
         try {
             MemberInfo clone = (MemberInfo) super.clone();
-            clone.name = name;
             clone.desc = desc.clone();
             return clone;
         } catch (CloneNotSupportedException ignored) {

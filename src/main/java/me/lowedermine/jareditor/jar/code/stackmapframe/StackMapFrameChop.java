@@ -9,9 +9,9 @@ import java.io.IOException;
 public class StackMapFrameChop extends StackMapFrame {
     public int k;
 
-    public StackMapFrameChop(int type, DataInputStream in) throws IOException {
+    public StackMapFrameChop(int type, DataInputStream in, int prevOffset, int[] indexMap) throws IOException {
         k = 251 - type;
-        offset = in.readUnsignedShort();
+        offset = indexMap[in.readUnsignedShort() + prevOffset];
     }
 
     @Override

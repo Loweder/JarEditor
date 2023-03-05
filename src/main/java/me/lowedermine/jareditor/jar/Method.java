@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-//TODO: invoke_dynamic support
 public class Method {
     public MethodInfoSegment info = new MethodInfoSegment();
     public CodeSegment code = null;
@@ -58,8 +56,8 @@ public class Method {
                 info.exceptions = new ClassInfo[in.readUnsignedShort()];
                 for (int i = 0; i < info.exceptions.length; i++) info.exceptions[i] = (ClassInfo) cp.ro(in.readUnsignedShort());
                 break;
-            case "MethodParameter":
-                info.methodParameters = new MethodParameter[in.readUnsignedShort()];
+            case "MethodParameters":
+                info.methodParameters = new MethodParameter[in.readUnsignedByte()];
                 for (int i = 0; i < info.methodParameters.length; i++) info.methodParameters[i] = new MethodParameter(in, cp);
                 break;
             case "Code":
@@ -158,7 +156,7 @@ public class Method {
                 int offset = 0;
                 for (int i = 0; i < code.stackMapTable.length; i++) {
                     code.stackMapTable[i] = StackMapFrame.parse(in, cp, offset, indexMap[0]);
-                    offset = indexMap[1][code.stackMapTable[i].offset];
+                    offset = indexMap[1][code.stackMapTable[i].offset] + 1;
                 }
                 break;
             case "RuntimeVisibleTypeAnnotations":
@@ -174,7 +172,7 @@ public class Method {
         }
     }
 
-    public void toPool(ConstantPoolBuilder cp) {
+    public void toPool(ConstantPoolBuilder cp, List<ClassFile.BootstrapMethod> methods) {
         {
             cp.add(info.info.name);
             cp.add(info.info.desc.toRaw());
@@ -205,6 +203,10 @@ public class Method {
             cp.add("Code");
             for (Instruction instruction : code.instructions) {
                 instruction.toPool(cp);
+                if (instruction instanceof Instruction.InvokeDynamic)
+                    ((Instruction.InvokeDynamic) instruction).toPool(cp, methods);
+                if (instruction instanceof Instruction.LoadConst)
+                    ((Instruction.LoadConst) instruction).toPool(cp, methods);
             }
             for (ExceptionHandler handler : code.exceptionHandlers) {
                 handler.toPool(cp);
@@ -321,8 +323,8 @@ public class Method {
             }
             if (info.methodParameters != null) {
                 out.writeShort(cp.indexOf("MethodParameters"));
-                out.writeInt(2 + (info.methodParameters.length * 4));
-                out.writeShort(info.methodParameters.length);
+                out.writeInt(1 + (info.methodParameters.length * 4));
+                out.writeByte(info.methodParameters.length);
                 for (MethodParameter methodParameter : info.methodParameters) methodParameter.toStream(out, cp);
             }
             if (info.exceptions != null) {
@@ -419,7 +421,7 @@ public class Method {
             indexMap[1][i] = indexList.get(i);
         }
         out.writeInt(length);
-        for (Instruction instruction : code.instructions) instruction.toRaw(out, cp);
+        for (Instruction instruction : code.instructions) instruction.toStream(out, cp);
         out.writeShort(code.exceptionHandlers.length);
         for (ExceptionHandler exceptionHandler : code.exceptionHandlers) exceptionHandler.toStream(out, cp, indexMap[1]);
         int attributes = 0;
@@ -474,7 +476,7 @@ public class Method {
                 int prevOffset = 0;
                 for (StackMapFrame stackMapFrame : code.stackMapTable) {
                     stackMapFrame.toStream(out, cp, prevOffset, indexMap[1]);
-                    prevOffset = indexMap[1][stackMapFrame.offset];
+                    prevOffset = indexMap[1][stackMapFrame.offset] + 1;
                 }
             }
         }

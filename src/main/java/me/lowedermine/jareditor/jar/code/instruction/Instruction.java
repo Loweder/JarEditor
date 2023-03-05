@@ -3,13 +3,12 @@ package me.lowedermine.jareditor.jar.code.instruction;
 import me.lowedermine.jareditor.jar.ClassFile;
 import me.lowedermine.jareditor.jar.constants.ConstantPool;
 import me.lowedermine.jareditor.jar.constants.ConstantPoolBuilder;
-import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
-import me.lowedermine.jareditor.jar.infos.BootstrapMethodInfo;
-import me.lowedermine.jareditor.jar.infos.ClassFieldInfo;
-import me.lowedermine.jareditor.jar.infos.ClassInfo;
-import me.lowedermine.jareditor.jar.infos.ClassMethodInfo;
+import me.lowedermine.jareditor.jar.infos.*;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 public abstract class Instruction {
     public static Instruction parse(DataInputStream str, ConstantPool cp, int offset) throws IOException {
@@ -52,10 +51,10 @@ public abstract class Instruction {
             case SIPUSH:
                 return new ShortPush(str);
             case LDC:
-                return new LoadConst(str, cp, false);
+                return new RawLoadConst(str, cp, false);
             case LDC_W:
             case LDC_2_W:
-                return new LoadConst(str, cp, true);
+                return new RawLoadConst(str, cp, true);
             case ILOAD:
                 return new AccessLocal(Type.INTEGER, str.readUnsignedByte(), false);
             case LLOAD:
@@ -703,9 +702,9 @@ public abstract class Instruction {
             } else {
                 return 2;
             }
-        } else if (this instanceof LoadConst) {
-            int index = cp.indexOf(((LoadConst) this).constant);
-            if (((LoadConst) this).wide) {
+        } else if (this instanceof RawLoadConst) {
+            int index = cp.indexOf(((RawLoadConst) this).constant);
+            if (((RawLoadConst) this).wide) {
                 return 3;
             } else {
                 if (index < 256) {
@@ -735,7 +734,7 @@ public abstract class Instruction {
         return 0;
     }
 
-    public void toRaw(DataOutputStream out, ConstantPool cp) throws IOException {
+    public void toStream(DataOutputStream out, ConstantPool cp) throws IOException {
         if (this instanceof Nop) {
             Opcode.NOP.write(out);
         } else if (this instanceof Const) {
@@ -771,9 +770,9 @@ public abstract class Instruction {
         } else if (this instanceof ShortPush) {
             Opcode.SIPUSH.write(out);
             out.writeShort(((ShortPush) this).value);
-        } else if (this instanceof LoadConst) {
-            int index = cp.indexOf(((LoadConst) this).constant);
-            if (((LoadConst) this).wide) {
+        } else if (this instanceof RawLoadConst) {
+            int index = cp.indexOf(((RawLoadConst) this).constant);
+            if (((RawLoadConst) this).wide) {
                 Opcode.LDC_2_W.write(out);
                 out.writeShort(index);
             } else {
@@ -1367,20 +1366,65 @@ public abstract class Instruction {
         }
     }
 
-    public static class LoadConst extends Instruction {
+    public static class RawLoadConst extends Instruction {
         public Object constant;
         public boolean wide;
 
-        public LoadConst(DataInputStream str, ConstantPool cp, boolean readWide) throws IOException {
+        protected RawLoadConst() {
+
+        }
+
+        public RawLoadConst(DataInputStream str, ConstantPool cp, boolean readWide) throws IOException {
             int index = readWide ? str.readUnsignedShort() : str.readUnsignedByte();
             constant = cp.ro(index);
             wide = constant instanceof Double || constant instanceof Long;
         }
 
         @Override
-        public void toPool(ConstantPoolBuilder cp) {
-            cp.add(constant);
+        public void toPool(ConstantPoolBuilder cp) {}
+    }
+
+    public static class LoadConst extends Instruction {
+        public Object constant;
+        public boolean wide;
+        public FieldInfo info = null;
+
+        public LoadConst(RawLoadConst raw, ClassFile.BootstrapMethod[] methods) {
+            if (raw.constant instanceof BootstrapFieldInfo) {
+                constant = methods[((BootstrapFieldInfo) raw.constant).index];
+                info = ((BootstrapFieldInfo) raw.constant).getInfo();
+            } else
+                constant = raw.constant;
+            wide = raw.wide;
         }
+
+        public RawLoadConst toRaw(List<ClassFile.BootstrapMethod> methods) {
+            RawLoadConst newRaw = new RawLoadConst();
+            newRaw.wide = wide;
+            if (!(constant instanceof ClassFile.BootstrapMethod)) {
+                newRaw.constant = constant;
+            } else {
+                ClassFile.BootstrapMethod fConstant = (ClassFile.BootstrapMethod) constant;
+                if (!methods.contains(fConstant)) methods.add(fConstant);
+                newRaw.constant = new BootstrapFieldInfo(methods.indexOf(fConstant), info);
+            }
+            return newRaw;
+        }
+
+        public void toPool(ConstantPoolBuilder cp, List<ClassFile.BootstrapMethod> methods) {
+            if (!(constant instanceof ClassFile.BootstrapMethod))
+                cp.add(constant);
+            else {
+                ClassFile.BootstrapMethod fConstant = (ClassFile.BootstrapMethod) constant;
+                cp.add("BootstrapMethods");
+                fConstant.toPool(cp);
+                if (!methods.contains(fConstant)) methods.add(fConstant);
+                cp.add(new BootstrapFieldInfo(methods.indexOf(fConstant), info));
+            }
+        }
+
+        @Override
+        public void toPool(ConstantPoolBuilder cp) {}
     }
 
     public static class AccessLocal extends Instruction {
@@ -1619,6 +1663,10 @@ public abstract class Instruction {
     public static class RawInvokeDynamic extends Instruction {
         public BootstrapMethodInfo info;
 
+        protected RawInvokeDynamic() {
+
+        }
+
         public RawInvokeDynamic(DataInputStream str, ConstantPool cp) throws IOException {
             info = (BootstrapMethodInfo) cp.ro(str.readUnsignedShort());
             str.readUnsignedShort();
@@ -1630,20 +1678,31 @@ public abstract class Instruction {
         }
     }
 
-    //TODO: Implement toPool(ConstantPoolBuilder)
     public static class InvokeDynamic extends Instruction {
         public ClassFile.BootstrapMethod method;
-        public DescriptorMethod desc;
+        public MethodInfo info;
 
-        public InvokeDynamic(RawInvokeDynamic raw, ClassFile.BootstrapMethod[] bootstraps) {
-            method = bootstraps[raw.info.index].clone();
-            desc = (DescriptorMethod) raw.info.desc;
+        public InvokeDynamic(RawInvokeDynamic raw, ClassFile.BootstrapMethod[] methods) {
+            method = methods[raw.info.index].clone();
+            info = raw.info.getInfo();
+        }
+
+        public RawInvokeDynamic toRaw(List<ClassFile.BootstrapMethod> methods) {
+            RawInvokeDynamic newRaw = new RawInvokeDynamic();
+            if (!methods.contains(method)) methods.add(method);
+            newRaw.info = new BootstrapMethodInfo(methods.indexOf(method), info);
+            return newRaw;
+        }
+
+        public void toPool(ConstantPoolBuilder cp, List<ClassFile.BootstrapMethod> methods) {
+            cp.add("BootstrapMethods");
+            method.toPool(cp);
+            if (!methods.contains(method)) methods.add(method);
+            cp.add(new BootstrapMethodInfo(methods.indexOf(method), info));
         }
 
         @Override
-        public void toPool(ConstantPoolBuilder cp) {
-//            cp.add(new BootstrapMethodInfo());
-        }
+        public void toPool(ConstantPoolBuilder cp) {}
     }
 
     public static class New extends Instruction {

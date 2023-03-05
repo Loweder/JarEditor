@@ -5,7 +5,6 @@ import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
 import java.util.Objects;
 
 public class ClassMethodInfo extends ClassMemberInfo {
-    public ClassInfo clazz;
     public boolean interfaceMethod;
 
     public ClassMethodInfo(ClassInfo inClass, MemberInfo inInfo, boolean inMeth) {
@@ -14,7 +13,7 @@ public class ClassMethodInfo extends ClassMemberInfo {
     }
 
     @Override
-    public MemberInfo getInfo() {
+    public MethodInfo getInfo() {
         return new MethodInfo(name, (DescriptorMethod) desc);
     }
 

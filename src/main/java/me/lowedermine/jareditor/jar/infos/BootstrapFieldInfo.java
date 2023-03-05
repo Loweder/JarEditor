@@ -8,7 +8,7 @@ public class BootstrapFieldInfo extends BootstrapMemberInfo {
     }
 
     @Override
-    public MemberInfo getInfo() {
+    public FieldInfo getInfo() {
         return new FieldInfo(name, (DescriptorField) desc);
     }
 }

@@ -58,12 +58,6 @@ public abstract class FieldRenamer extends Renamer<ClassFieldInfo, String> {
                 for (ClassFile.RecordComponent component : file.main.recordComponents)
                     mapRecordComponent(file.info.name, component);
             }
-            if (file.main.bootstrapMethods != null) {
-                for (ClassFile.BootstrapMethod method : file.main.bootstrapMethods) {
-                    mapConstant(method);
-                    for (Object arg : method.args) mapConstant(arg);
-                }
-            }
         }
         if (file.annotation != null) {
             if (file.annotation.visible != null) {
@@ -133,9 +127,13 @@ public abstract class FieldRenamer extends Renamer<ClassFieldInfo, String> {
         }
     }
     private void mapInstruction(Instruction instruction) {
-        if (instruction instanceof Instruction.LoadConst)
+        if (instruction instanceof Instruction.LoadConst) {
             mapConstant(((Instruction.LoadConst) instruction).constant);
-        else if (instruction instanceof Instruction.AccessField)
+            if (((Instruction.LoadConst) instruction).constant instanceof ClassFile.BootstrapMethod) {
+                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConst) instruction).constant).args)
+                    mapConstant(arg);
+            }
+        } else if (instruction instanceof Instruction.AccessField)
             ((Instruction.AccessField) instruction).info.name = map(((Instruction.AccessField) instruction).info);
 
     }
@@ -179,7 +177,5 @@ public abstract class FieldRenamer extends Renamer<ClassFieldInfo, String> {
             ((ClassFieldInfo) constant).name = map((ClassFieldInfo) constant);
         } else if (constant instanceof MethodHandleInfo)
             mapConstant(((MethodHandleInfo) constant).getInfo());
-//        else if (constant instanceof BootstrapFieldInfo)
-//            ((BootstrapFieldInfo) constant).info.name = map(new ClassFieldInfo(name, ((BootstrapFieldInfo) constant).info));
     }
 }
