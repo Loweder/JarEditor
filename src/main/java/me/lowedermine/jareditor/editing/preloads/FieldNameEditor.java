@@ -128,14 +128,14 @@ public abstract class FieldNameEditor extends NameEditor<ClassFieldInfo, String>
         }
     }
     private void mapInstruction(Instruction instruction) {
-        if (instruction instanceof Instruction.LoadConst) {
-            mapConstant(((Instruction.LoadConst) instruction).constant);
-            if (((Instruction.LoadConst) instruction).constant instanceof ClassFile.BootstrapMethod) {
-                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConst) instruction).constant).args)
+        if (instruction instanceof Instruction.LoadConstant) {
+            mapConstant(((Instruction.LoadConstant) instruction).constant);
+            if (((Instruction.LoadConstant) instruction).constant instanceof ClassFile.BootstrapMethod) {
+                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConstant) instruction).constant).args)
                     mapConstant(arg);
             }
-        } else if (instruction instanceof Instruction.AccessField)
-            ((Instruction.AccessField) instruction).info.name = map(((Instruction.AccessField) instruction).info);
+        } else if (instruction instanceof Instruction.Field)
+            ((Instruction.Field) instruction).info.name = map(((Instruction.Field) instruction).info);
 
     }
     private void mapRecordComponent(ClassInfo name, ClassFile.RecordComponent component) {

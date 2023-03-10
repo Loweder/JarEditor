@@ -221,10 +221,10 @@ public class Method {
             cp.add("Code");
             for (Instruction instruction : code.instructions) {
                 instruction.toPool(cp);
-                if (instruction instanceof Instruction.InvokeDynamic)
-                    ((Instruction.InvokeDynamic) instruction).toPool(cp, methods);
-                if (instruction instanceof Instruction.LoadConst)
-                    ((Instruction.LoadConst) instruction).toPool(cp, methods);
+                if (instruction instanceof Instruction.DynamicMethod)
+                    ((Instruction.DynamicMethod) instruction).toPool(cp, methods);
+                if (instruction instanceof Instruction.LoadConstant)
+                    ((Instruction.LoadConstant) instruction).toPool(cp, methods);
             }
             if (code.exceptionHandlers != null) {
                 for (ExceptionHandler handler : code.exceptionHandlers) {

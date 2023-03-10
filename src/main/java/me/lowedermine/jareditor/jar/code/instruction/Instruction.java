@@ -17,194 +17,194 @@ public abstract class Instruction {
             case NOP:
                 return new Nop();
             case ACONST_NULL:
-                return new LoadDirectConst(Type.OBJECT, null);
+                return new Constant(Type.OBJECT, null);
             case ICONST_M1:
-                return new LoadDirectConst(Type.INTEGER, -1);
+                return new Constant(Type.INTEGER, -1);
             case ICONST_0:
-                return new LoadDirectConst(Type.INTEGER, 0);
+                return new Constant(Type.INTEGER, 0);
             case ICONST_1:
-                return new LoadDirectConst(Type.INTEGER, 1);
+                return new Constant(Type.INTEGER, 1);
             case ICONST_2:
-                return new LoadDirectConst(Type.INTEGER, 2);
+                return new Constant(Type.INTEGER, 2);
             case ICONST_3:
-                return new LoadDirectConst(Type.INTEGER, 3);
+                return new Constant(Type.INTEGER, 3);
             case ICONST_4:
-                return new LoadDirectConst(Type.INTEGER, 4);
+                return new Constant(Type.INTEGER, 4);
             case ICONST_5:
-                return new LoadDirectConst(Type.INTEGER, 5);
+                return new Constant(Type.INTEGER, 5);
             case LCONST_0:
-                return new LoadDirectConst(Type.LONG, 0);
+                return new Constant(Type.LONG, 0);
             case LCONST_1:
-                return new LoadDirectConst(Type.LONG, 1);
+                return new Constant(Type.LONG, 1);
             case FCONST_0:
-                return new LoadDirectConst(Type.FLOAT, 0);
+                return new Constant(Type.FLOAT, 0);
             case FCONST_1:
-                return new LoadDirectConst(Type.FLOAT, 1);
+                return new Constant(Type.FLOAT, 1);
             case FCONST_2:
-                return new LoadDirectConst(Type.FLOAT, 2);
+                return new Constant(Type.FLOAT, 2);
             case DCONST_0:
-                return new LoadDirectConst(Type.DOUBLE, 0);
+                return new Constant(Type.DOUBLE, 0);
             case DCONST_1:
-                return new LoadDirectConst(Type.DOUBLE, 1);
+                return new Constant(Type.DOUBLE, 1);
             case BIPUSH:
-                return new LoadDirectConst(str, Type.BYTE);
+                return new Constant(str, Type.BYTE);
             case SIPUSH:
-                return new LoadDirectConst(str, Type.SHORT);
+                return new Constant(str, Type.SHORT);
             case LDC:
-                return new LoadConst.RawLoadConst(str, cp, false);
+                return new LoadConstant.RawLoadConst(str, cp, false);
             case LDC_W:
             case LDC_2_W:
-                return new LoadConst.RawLoadConst(str, cp, true);
+                return new LoadConstant.RawLoadConst(str, cp, true);
             case ILOAD:
-                return new AccessLocal(Type.INTEGER, str.readUnsignedByte(), false);
+                return new Local(Type.INTEGER, str.readUnsignedByte(), false);
             case LLOAD:
-                return new AccessLocal(Type.LONG, str.readUnsignedByte(), false);
+                return new Local(Type.LONG, str.readUnsignedByte(), false);
             case FLOAD:
-                return new AccessLocal(Type.FLOAT, str.readUnsignedByte(), false);
+                return new Local(Type.FLOAT, str.readUnsignedByte(), false);
             case DLOAD:
-                return new AccessLocal(Type.DOUBLE, str.readUnsignedByte(), false);
+                return new Local(Type.DOUBLE, str.readUnsignedByte(), false);
             case ALOAD:
-                return new AccessLocal(Type.OBJECT, str.readUnsignedByte(), false);
+                return new Local(Type.OBJECT, str.readUnsignedByte(), false);
             case ILOAD_0:
-                return new AccessLocal(Type.INTEGER, 0, false);
+                return new Local(Type.INTEGER, 0, false);
             case ILOAD_1:
-                return new AccessLocal(Type.INTEGER, 1, false);
+                return new Local(Type.INTEGER, 1, false);
             case ILOAD_2:
-                return new AccessLocal(Type.INTEGER, 2, false);
+                return new Local(Type.INTEGER, 2, false);
             case ILOAD_3:
-                return new AccessLocal(Type.INTEGER, 3, false);
+                return new Local(Type.INTEGER, 3, false);
             case LLOAD_0:
-                return new AccessLocal(Type.LONG, 0, false);
+                return new Local(Type.LONG, 0, false);
             case LLOAD_1:
-                return new AccessLocal(Type.LONG, 1, false);
+                return new Local(Type.LONG, 1, false);
             case LLOAD_2:
-                return new AccessLocal(Type.LONG, 2, false);
+                return new Local(Type.LONG, 2, false);
             case LLOAD_3:
-                return new AccessLocal(Type.LONG, 3, false);
+                return new Local(Type.LONG, 3, false);
             case FLOAD_0:
-                return new AccessLocal(Type.FLOAT, 0, false);
+                return new Local(Type.FLOAT, 0, false);
             case FLOAD_1:
-                return new AccessLocal(Type.FLOAT, 1, false);
+                return new Local(Type.FLOAT, 1, false);
             case FLOAD_2:
-                return new AccessLocal(Type.FLOAT, 2, false);
+                return new Local(Type.FLOAT, 2, false);
             case FLOAD_3:
-                return new AccessLocal(Type.FLOAT, 3, false);
+                return new Local(Type.FLOAT, 3, false);
             case DLOAD_0:
-                return new AccessLocal(Type.DOUBLE, 0, false);
+                return new Local(Type.DOUBLE, 0, false);
             case DLOAD_1:
-                return new AccessLocal(Type.DOUBLE, 1, false);
+                return new Local(Type.DOUBLE, 1, false);
             case DLOAD_2:
-                return new AccessLocal(Type.DOUBLE, 2, false);
+                return new Local(Type.DOUBLE, 2, false);
             case DLOAD_3:
-                return new AccessLocal(Type.DOUBLE, 3, false);
+                return new Local(Type.DOUBLE, 3, false);
             case ALOAD_0:
-                return new AccessLocal(Type.OBJECT, 0, false);
+                return new Local(Type.OBJECT, 0, false);
             case ALOAD_1:
-                return new AccessLocal(Type.OBJECT, 1, false);
+                return new Local(Type.OBJECT, 1, false);
             case ALOAD_2:
-                return new AccessLocal(Type.OBJECT, 2, false);
+                return new Local(Type.OBJECT, 2, false);
             case ALOAD_3:
-                return new AccessLocal(Type.OBJECT, 3, false);
+                return new Local(Type.OBJECT, 3, false);
             case IALOAD:
-                return new AccessArray(Type.INTEGER, false);
+                return new Array(Type.INTEGER, false);
             case LALOAD:
-                return new AccessArray(Type.LONG, false);
+                return new Array(Type.LONG, false);
             case FALOAD:
-                return new AccessArray(Type.FLOAT, false);
+                return new Array(Type.FLOAT, false);
             case DALOAD:
-                return new AccessArray(Type.DOUBLE, false);
+                return new Array(Type.DOUBLE, false);
             case AALOAD:
-                return new AccessArray(Type.OBJECT, false);
+                return new Array(Type.OBJECT, false);
             case BALOAD:
-                return new AccessArray(Type.BYTE, false);
+                return new Array(Type.BYTE, false);
             case CALOAD:
-                return new AccessArray(Type.CHAR, false);
+                return new Array(Type.CHAR, false);
             case SALOAD:
-                return new AccessArray(Type.SHORT, false);
+                return new Array(Type.SHORT, false);
             case ISTORE:
-                return new AccessLocal(Type.INTEGER, str.readUnsignedByte(), true);
+                return new Local(Type.INTEGER, str.readUnsignedByte(), true);
             case LSTORE:
-                return new AccessLocal(Type.LONG, str.readUnsignedByte(), true);
+                return new Local(Type.LONG, str.readUnsignedByte(), true);
             case FSTORE:
-                return new AccessLocal(Type.FLOAT, str.readUnsignedByte(), true);
+                return new Local(Type.FLOAT, str.readUnsignedByte(), true);
             case DSTORE:
-                return new AccessLocal(Type.DOUBLE, str.readUnsignedByte(), true);
+                return new Local(Type.DOUBLE, str.readUnsignedByte(), true);
             case ASTORE:
-                return new AccessLocal(Type.OBJECT, str.readUnsignedByte(), true);
+                return new Local(Type.OBJECT, str.readUnsignedByte(), true);
             case ISTORE_0:
-                return new AccessLocal(Type.INTEGER, 0, true);
+                return new Local(Type.INTEGER, 0, true);
             case ISTORE_1:
-                return new AccessLocal(Type.INTEGER, 1, true);
+                return new Local(Type.INTEGER, 1, true);
             case ISTORE_2:
-                return new AccessLocal(Type.INTEGER, 2, true);
+                return new Local(Type.INTEGER, 2, true);
             case ISTORE_3:
-                return new AccessLocal(Type.INTEGER, 3, true);
+                return new Local(Type.INTEGER, 3, true);
             case LSTORE_0:
-                return new AccessLocal(Type.LONG, 0, true);
+                return new Local(Type.LONG, 0, true);
             case LSTORE_1:
-                return new AccessLocal(Type.LONG, 1, true);
+                return new Local(Type.LONG, 1, true);
             case LSTORE_2:
-                return new AccessLocal(Type.LONG, 2, true);
+                return new Local(Type.LONG, 2, true);
             case LSTORE_3:
-                return new AccessLocal(Type.LONG, 3, true);
+                return new Local(Type.LONG, 3, true);
             case FSTORE_0:
-                return new AccessLocal(Type.FLOAT, 0, true);
+                return new Local(Type.FLOAT, 0, true);
             case FSTORE_1:
-                return new AccessLocal(Type.FLOAT, 1, true);
+                return new Local(Type.FLOAT, 1, true);
             case FSTORE_2:
-                return new AccessLocal(Type.FLOAT, 2, true);
+                return new Local(Type.FLOAT, 2, true);
             case FSTORE_3:
-                return new AccessLocal(Type.FLOAT, 3, true);
+                return new Local(Type.FLOAT, 3, true);
             case DSTORE_0:
-                return new AccessLocal(Type.DOUBLE, 0, true);
+                return new Local(Type.DOUBLE, 0, true);
             case DSTORE_1:
-                return new AccessLocal(Type.DOUBLE, 1, true);
+                return new Local(Type.DOUBLE, 1, true);
             case DSTORE_2:
-                return new AccessLocal(Type.DOUBLE, 2, true);
+                return new Local(Type.DOUBLE, 2, true);
             case DSTORE_3:
-                return new AccessLocal(Type.DOUBLE, 3, true);
+                return new Local(Type.DOUBLE, 3, true);
             case ASTORE_0:
-                return new AccessLocal(Type.OBJECT, 0, true);
+                return new Local(Type.OBJECT, 0, true);
             case ASTORE_1:
-                return new AccessLocal(Type.OBJECT, 1, true);
+                return new Local(Type.OBJECT, 1, true);
             case ASTORE_2:
-                return new AccessLocal(Type.OBJECT, 2, true);
+                return new Local(Type.OBJECT, 2, true);
             case ASTORE_3:
-                return new AccessLocal(Type.OBJECT, 3, true);
+                return new Local(Type.OBJECT, 3, true);
             case IASTORE:
-                return new AccessArray(Type.INTEGER, true);
+                return new Array(Type.INTEGER, true);
             case LASTORE:
-                return new AccessArray(Type.LONG, true);
+                return new Array(Type.LONG, true);
             case FASTORE:
-                return new AccessArray(Type.FLOAT, true);
+                return new Array(Type.FLOAT, true);
             case DASTORE:
-                return new AccessArray(Type.DOUBLE, true);
+                return new Array(Type.DOUBLE, true);
             case AASTORE:
-                return new AccessArray(Type.OBJECT, true);
+                return new Array(Type.OBJECT, true);
             case BASTORE:
-                return new AccessArray(Type.BYTE, true);
+                return new Array(Type.BYTE, true);
             case CASTORE:
-                return new AccessArray(Type.CHAR, true);
+                return new Array(Type.CHAR, true);
             case SASTORE:
-                return new AccessArray(Type.SHORT, true);
+                return new Array(Type.SHORT, true);
             case POP:
-                return new AccessStack(false);
+                return new Stack(false);
             case POP2:
-                return new AccessStack(true);
+                return new Stack(true);
             case DUP:
-                return new AccessStack(false, 0);
+                return new Stack(false, 0);
             case DUP_X1:
-                return new AccessStack(false, 1);
+                return new Stack(false, 1);
             case DUP_X2:
-                return new AccessStack(false, 2);
+                return new Stack(false, 2);
             case DUP2:
-                return new AccessStack(true, 0);
+                return new Stack(true, 0);
             case DUP2_X1:
-                return new AccessStack(true, 1);
+                return new Stack(true, 1);
             case DUP2_X2:
-                return new AccessStack(true, 2);
+                return new Stack(true, 2);
             case SWAP:
-                return new AccessStack();
+                return new Stack();
             case IADD:
                 return new ALU(Operation.ADD, Type.INTEGER);
             case LADD:
@@ -278,7 +278,7 @@ public abstract class Instruction {
             case LXOR:
                 return new ALU(Operation.BITWISE_XOR, Type.LONG);
             case IINC:
-                return new Increment(str);
+                return new Increment(false, str);
             case I2L:
                 return new TypeToType(Type.INTEGER, Type.LONG);
             case I2F:
@@ -360,7 +360,7 @@ public abstract class Instruction {
             case JSR_W:
                 return new Jump(false, true, str);
             case RET:
-                return new JumpReturn(str);
+                return new JumpReturn(false, str);
             case TABLESWITCH:
                 return new TableSwitch(str, offset);
             case LOOKUPSWITCH:
@@ -378,23 +378,23 @@ public abstract class Instruction {
             case RETURN:
                 return new Return(Type.NONE);
             case GETSTATIC:
-                return new AccessField(true, false, str, cp);
+                return new Field(true, false, str, cp);
             case PUTSTATIC:
-                return new AccessField(true, true, str, cp);
+                return new Field(true, true, str, cp);
             case GETFIELD:
-                return new AccessField(false, false, str, cp);
+                return new Field(false, false, str, cp);
             case PUTFIELD:
-                return new AccessField(false, true, str, cp);
+                return new Field(false, true, str, cp);
             case INVOKEVIRTUAL:
-                return new InvokeMethod(InvokeType.VIRTUAL, str, cp);
+                return new Method(InvokeType.VIRTUAL, str, cp);
             case INVOKESPECIAL:
-                return new InvokeMethod(InvokeType.SPECIAL, str, cp);
+                return new Method(InvokeType.SPECIAL, str, cp);
             case INVOKESTATIC:
-                return new InvokeMethod(InvokeType.STATIC, str, cp);
+                return new Method(InvokeType.STATIC, str, cp);
             case INVOKEINTERFACE:
-                return new InvokeMethod(InvokeType.INTERFACE, str, cp);
+                return new Method(InvokeType.INTERFACE, str, cp);
             case INVOKEDYNAMIC:
-                return new InvokeDynamic.RawInvokeDynamic(str, cp);
+                return new DynamicMethod.RawInvokeDynamic(str, cp);
             case NEW:
                 return new New(0, str, cp);
             case ANEWARRAY:
@@ -402,7 +402,7 @@ public abstract class Instruction {
             case MULTIANEWARRAY:
                 return new New(2, str, cp);
             case NEWARRAY:
-                return new NewPrimitiveArray(str);
+                return new New(str);
             case ARRAYLENGTH:
                 return new ArrayLength();
             case ATHROW:
@@ -416,7 +416,33 @@ public abstract class Instruction {
             case MONITOREXIT:
                 return new Monitor(false);
             case WIDE:
-                return new Wide(str);
+                Opcode inOpcode = Opcode.get(str.readUnsignedByte());
+                switch (inOpcode) {
+                    case ILOAD:
+                        return new Local(Type.INTEGER, str.readUnsignedShort(), false);
+                    case LLOAD:
+                        return new Local(Type.LONG, str.readUnsignedShort(), false);
+                    case FLOAD:
+                        return new Local(Type.FLOAT, str.readUnsignedShort(), false);
+                    case DLOAD:
+                        return new Local(Type.DOUBLE, str.readUnsignedShort(), false);
+                    case ALOAD:
+                        return new Local(Type.OBJECT, str.readUnsignedShort(), false);
+                    case ISTORE:
+                        return new Local(Type.INTEGER, str.readUnsignedShort(), true);
+                    case LSTORE:
+                        return new Local(Type.LONG, str.readUnsignedShort(), true);
+                    case FSTORE:
+                        return new Local(Type.FLOAT, str.readUnsignedShort(), true);
+                    case DSTORE:
+                        return new Local(Type.DOUBLE, str.readUnsignedShort(), true);
+                    case ASTORE:
+                        return new Local(Type.OBJECT, str.readUnsignedShort(), true);
+                    case RET:
+                        return new JumpReturn(true, str);
+                    case IINC:
+                        return new Increment(true, str);
+                }
             case BREAKPOINT:
                 return new BreakPoint();
             case IMPDEP1:
@@ -662,82 +688,84 @@ public abstract class Instruction {
 
     public int toLength(ConstantPool cp) {
         if (this instanceof Nop ||
-                this instanceof LoadDirectConst && ((LoadDirectConst) this).type != Type.BYTE && ((LoadDirectConst) this).type != Type.SHORT ||
-                this instanceof AccessArray ||
-                this instanceof AccessStack ||
+                this instanceof Array ||
+                this instanceof ArrayLength ||
+                this instanceof Stack ||
                 this instanceof ALU ||
                 this instanceof TypeToType ||
                 this instanceof Compare ||
                 this instanceof Return ||
-                this instanceof ArrayLength ||
                 this instanceof Throw ||
                 this instanceof Monitor ||
                 this instanceof BreakPoint ||
                 this instanceof ImpDep) {
             return 1;
-        } else if (this instanceof LoadDirectConst && ((LoadDirectConst) this).type == Type.BYTE ||
-                this instanceof NewPrimitiveArray ||
-                this instanceof JumpReturn) {
-            return 2;
-        } else if (this instanceof New && ((New)this).dimensions <= 1 ||
-                this instanceof Increment ||
-                this instanceof LoadDirectConst && ((LoadDirectConst) this).type == Type.SHORT ||
-                this instanceof AccessField ||
-                (this instanceof InvokeMethod && ((InvokeMethod) this).type != InvokeType.INTERFACE) ||
+        }
+        else if (this instanceof Field ||
                 this instanceof Cast) {
             return 3;
-        } else if (this instanceof New && ((New)this).dimensions > 1) {
-            return 4;
-        } else if ((this instanceof InvokeMethod && ((InvokeMethod) this).type == InvokeType.INTERFACE) ||
-                this instanceof InvokeDynamic.RawInvokeDynamic) {
-            return 5;
-        } else if (this instanceof AccessLocal) {
-            int index = ((AccessLocal) this).index;
-            if (index < 4) {
-                return 1;
-            } else {
+        }
+        else if (this instanceof Constant) {
+            Type type = ((Constant) this).type;
+            if (type == Type.BYTE)
                 return 2;
-            }
-        } else if (this instanceof LoadConst.RawLoadConst) {
-            int index = cp.indexOf(((LoadConst.RawLoadConst) this).constant);
-            if (((LoadConst.RawLoadConst) this).wide) {
+            else if (type == Type.SHORT)
                 return 3;
-            } else {
-                if (index < 256) {
-                    return 2;
-                } else {
-                    return 3;
-                }
-            }
-        } else if (this instanceof Jump) {
-            boolean wide = ((Jump) this).wide;
-            if (!wide)
+            return 1;
+        }
+        else if (this instanceof Local) {
+            int index = ((Local) this).index;
+            if (index < 4)
+                return 1;
+            else if (index < 256)
+                return 2;
+            return 4;
+        }
+        else if (this instanceof LoadConstant.RawLoadConst) {
+            int index = cp.indexOf(((LoadConstant.RawLoadConst) this).constant);
+            if (((LoadConstant.RawLoadConst) this).constant instanceof Long || ((LoadConstant.RawLoadConst) this).constant instanceof Double) {
                 return 3;
-            else
-                return 5;
-        } else if (this instanceof Wide) {
-            boolean isIncrement = ((Wide) this).isIncrement;
-            if (!isIncrement) {
+            }
+            return index < 256 ? 2 : 3;
+        }
+        else if (this instanceof Method) {
+            return ((Method) this).type == InvokeType.INTERFACE ? 5 : 3;
+        }
+        else if (this instanceof DynamicMethod.RawInvokeDynamic) {
+            return 5;
+        }
+        else if (this instanceof New) {
+            int opType = ((New) this).opType;
+            if (opType == 3)
+                return 2;
+            else if (opType == 2)
                 return 4;
-            } else {
-                return 6;
-            }
-        } else if (this instanceof TableSwitch) {
+            return 3;
+        }
+        else if (this instanceof Increment) {
+            return ((Increment) this).index < 256 && ((Increment) this).count < 256 ? 3 : 6;
+        }
+        else if (this instanceof Jump) {
+            return ((Jump) this).wide ? 5 : 3;
+        }
+        else if (this instanceof JumpReturn) {
+            return ((JumpReturn) this).index < 256 ? 2 : 4;
+        }
+        else if (this instanceof TableSwitch) {
             return 13 + ((TableSwitch) this).padding + (((TableSwitch) this).caseOffsets.length * 4);
-        } else if (this instanceof LookupSwitch) {
+        }
+        else if (this instanceof LookupSwitch) {
             return 9 + ((LookupSwitch) this).padding + (((LookupSwitch) this).pairs.length * 8);
         }
         return 0;
     }
 
     public void toStream(DataOutputStream out, ConstantPool cp) throws IOException {
-        if (this instanceof Nop) {
-            Opcode.NOP.write(out);
-        } else if (this instanceof LoadDirectConst) {
-            Type type = ((LoadDirectConst) this).type;
+        if (this instanceof Constant) {
+            Type type = ((Constant) this).type;
             switch (type) {
                 case INTEGER: {
-                    int value = (int) ((LoadDirectConst) this).value;
+                    int value = (int) ((Constant) this).value;
                     if (value == -1) Opcode.ICONST_M1.write(out);
                     else if (value == 0) Opcode.ICONST_0.write(out);
                     else if (value == 1) Opcode.ICONST_1.write(out);
@@ -748,20 +776,20 @@ public abstract class Instruction {
                     break;
                 }
                 case LONG: {
-                    long value = (long) ((LoadDirectConst) this).value;
+                    long value = (long) ((Constant) this).value;
                     if (value == 0) Opcode.LCONST_0.write(out);
                     else if (value == 1) Opcode.LCONST_1.write(out);
                     break;
                 }
                 case FLOAT: {
-                    float value = (int) ((LoadDirectConst) this).value;
+                    float value = (int) ((Constant) this).value;
                     if (value == 0) Opcode.FCONST_0.write(out);
                     else if (value == 1) Opcode.FCONST_1.write(out);
                     else if (value == 2) Opcode.FCONST_2.write(out);
                     break;
                 }
                 case DOUBLE: {
-                    double value = (double) ((LoadDirectConst) this).value;
+                    double value = (double) ((Constant) this).value;
                     if (value == 0) Opcode.DCONST_0.write(out);
                     else if (value == 1) Opcode.DCONST_1.write(out);
                     break;
@@ -771,18 +799,19 @@ public abstract class Instruction {
                     break;
                 case BYTE: {
                     Opcode.BIPUSH.write(out);
-                    out.writeByte((Integer) ((LoadDirectConst) this).value);
+                    out.writeByte((Integer) ((Constant) this).value);
                     break;
                 }
                 case SHORT: {
                     Opcode.SIPUSH.write(out);
-                    out.writeShort((Integer) ((LoadDirectConst) this).value);
+                    out.writeShort((Integer) ((Constant) this).value);
                     break;
                 }
             }
-        } else if (this instanceof LoadConst.RawLoadConst) {
-            int index = cp.indexOf(((LoadConst.RawLoadConst) this).constant);
-            if (((LoadConst.RawLoadConst) this).wide) {
+        }
+        else if (this instanceof LoadConstant.RawLoadConst) {
+            int index = cp.indexOf(((LoadConstant.RawLoadConst) this).constant);
+            if (((LoadConstant.RawLoadConst) this).constant instanceof Long || ((LoadConstant.RawLoadConst) this).constant instanceof Double) {
                 Opcode.LDC_2_W.write(out);
                 out.writeShort(index);
             } else {
@@ -794,490 +823,162 @@ public abstract class Instruction {
                     out.writeByte(index);
                 }
             }
-        } else if (this instanceof AccessLocal) {
-            int index = ((AccessLocal) this).index;
-            Type type = ((AccessLocal) this).type;
-            if (((AccessLocal) this).put) {
-                if (type == Type.INTEGER) {
-                    if (index == 0) {
-                        Opcode.ISTORE_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.ISTORE_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.ISTORE_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.ISTORE_3.write(out);
-                    } else {
-                        Opcode.ISTORE.write(out);
-                        out.writeByte(index);
+        }
+        else if (this instanceof Local) {
+            int index = ((Local) this).index;
+            Type type = ((Local) this).type;
+            if (index < 256) {
+                if (((Local) this).put) {
+                    if (type == Type.INTEGER) {
+                        if (index == 0) Opcode.ISTORE_0.write(out);
+                        else if (index == 1) Opcode.ISTORE_1.write(out);
+                        else if (index == 2) Opcode.ISTORE_2.write(out);
+                        else if (index == 3) Opcode.ISTORE_3.write(out);
+                        else Opcode.ISTORE.write(out);
+                    } 
+                    else if (type == Type.LONG) {
+                        if (index == 0) Opcode.LSTORE_0.write(out);
+                        else if (index == 1) Opcode.LSTORE_1.write(out);
+                        else if (index == 2) Opcode.LSTORE_2.write(out);
+                        else if (index == 3) Opcode.LSTORE_3.write(out);
+                        else Opcode.LSTORE.write(out);
+                    } 
+                    else if (type == Type.FLOAT) {
+                        if (index == 0) Opcode.FSTORE_0.write(out);
+                        else if (index == 1) Opcode.FSTORE_1.write(out);
+                        else if (index == 2) Opcode.FSTORE_2.write(out);
+                        else if (index == 3) Opcode.FSTORE_3.write(out);
+                        else Opcode.FSTORE.write(out);
+                    } 
+                    else if (type == Type.DOUBLE) {
+                        if (index == 0) Opcode.DSTORE_0.write(out);
+                        else if (index == 1) Opcode.DSTORE_1.write(out);
+                        else if (index == 2) Opcode.DSTORE_2.write(out);
+                        else if (index == 3) Opcode.DSTORE_3.write(out);
+                        else Opcode.DSTORE.write(out);
+                    } 
+                    else if (type == Type.OBJECT) {
+                        if (index == 0) Opcode.ASTORE_0.write(out);
+                        else if (index == 1) Opcode.ASTORE_1.write(out);
+                        else if (index == 2) Opcode.ASTORE_2.write(out);
+                        else if (index == 3) Opcode.ASTORE_3.write(out);
+                        else Opcode.ASTORE.write(out);
                     }
-                } else if (type == Type.LONG) {
-                    if (index == 0) {
-                        Opcode.LSTORE_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.LSTORE_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.LSTORE_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.LSTORE_3.write(out);
-                    } else {
-                        Opcode.LSTORE.write(out);
-                        out.writeByte(index);
-                    }
-                } else if (type == Type.FLOAT) {
-                    if (index == 0) {
-                        Opcode.FSTORE_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.FSTORE_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.FSTORE_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.FSTORE_3.write(out);
-                    } else {
-                        Opcode.FSTORE.write(out);
-                        out.writeByte(index);
-                    }
-                } else if (type == Type.DOUBLE) {
-                    if (index == 0) {
-                        Opcode.DSTORE_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.DSTORE_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.DSTORE_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.DSTORE_3.write(out);
-                    } else {
-                        Opcode.DSTORE.write(out);
-                        out.writeByte(index);
-                    }
-                } else if (type == Type.OBJECT) {
-                    if (index == 0) {
-                        Opcode.ASTORE_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.ASTORE_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.ASTORE_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.ASTORE_3.write(out);
-                    } else {
-                        Opcode.ASTORE.write(out);
-                        out.writeByte(index);
-                    }
-                }
-            } else {
-                if (type == Type.INTEGER) {
-                    if (index == 0) {
-                        Opcode.ILOAD_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.ILOAD_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.ILOAD_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.ILOAD_3.write(out);
-                    } else {
-                        Opcode.ILOAD.write(out);
-                        out.writeByte(index);
-                    }
-                } else if (type == Type.LONG) {
-                    if (index == 0) {
-                        Opcode.LLOAD_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.LLOAD_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.LLOAD_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.LLOAD_3.write(out);
-                    } else {
-                        Opcode.LLOAD.write(out);
-                        out.writeByte(index);
-                    }
-                } else if (type == Type.FLOAT) {
-                    if (index == 0) {
-                        Opcode.FLOAD_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.FLOAD_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.FLOAD_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.FLOAD_3.write(out);
-                    } else {
-                        Opcode.FLOAD.write(out);
-                        out.writeByte(index);
-                    }
-                } else if (type == Type.DOUBLE) {
-                    if (index == 0) {
-                        Opcode.DLOAD_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.DLOAD_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.DLOAD_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.DLOAD_3.write(out);
-                    } else {
-                        Opcode.DLOAD.write(out);
-                        out.writeByte(index);
-                    }
-                } else if (type == Type.OBJECT) {
-                    if (index == 0) {
-                        Opcode.ALOAD_0.write(out);
-                    } else if (index == 1) {
-                        Opcode.ALOAD_1.write(out);
-                    } else if (index == 2) {
-                        Opcode.ALOAD_2.write(out);
-                    } else if (index == 3) {
-                        Opcode.ALOAD_3.write(out);
-                    } else {
-                        Opcode.ALOAD.write(out);
-                        out.writeByte(index);
+                } 
+                else {
+                    if (type == Type.INTEGER) {
+                        if (index == 0) Opcode.ILOAD_0.write(out);
+                        else if (index == 1) Opcode.ILOAD_1.write(out);
+                        else if (index == 2) Opcode.ILOAD_2.write(out);
+                        else if (index == 3) Opcode.ILOAD_3.write(out);
+                        else Opcode.ILOAD.write(out);
+                    } 
+                    else if (type == Type.LONG) {
+                        if (index == 0) Opcode.LLOAD_0.write(out);
+                        else if (index == 1) Opcode.LLOAD_1.write(out);
+                        else if (index == 2) Opcode.LLOAD_2.write(out);
+                        else if (index == 3) Opcode.LLOAD_3.write(out);
+                        else Opcode.LLOAD.write(out);
+                    } 
+                    else if (type == Type.FLOAT) {
+                        if (index == 0) Opcode.FLOAD_0.write(out);
+                        else if (index == 1) Opcode.FLOAD_1.write(out);
+                        else if (index == 2) Opcode.FLOAD_2.write(out);
+                        else if (index == 3) Opcode.FLOAD_3.write(out);
+                        else Opcode.FLOAD.write(out);
+                        
+                    } 
+                    else if (type == Type.DOUBLE) {
+                        if (index == 0) Opcode.DLOAD_0.write(out);
+                        else if (index == 1) Opcode.DLOAD_1.write(out);
+                        else if (index == 2) Opcode.DLOAD_2.write(out);
+                        else if (index == 3) Opcode.DLOAD_3.write(out);
+                        else Opcode.DLOAD.write(out);
+                    } 
+                    else if (type == Type.OBJECT) {
+                        if (index == 0) Opcode.ALOAD_0.write(out);
+                        else if (index == 1) Opcode.ALOAD_1.write(out);
+                        else if (index == 2) Opcode.ALOAD_2.write(out);
+                        else if (index == 3) Opcode.ALOAD_3.write(out);
+                        else Opcode.ALOAD.write(out);
                     }
                 }
+                if (index > 3)
+                    out.writeByte(index);
+            } 
+            else {
+                Opcode.WIDE.write(out);
+                if (((Local) this).put) {
+                    if (type == Type.INTEGER) Opcode.ISTORE.write(out);
+                    else if (type == Type.LONG) Opcode.LSTORE.write(out);
+                    else if (type == Type.FLOAT) Opcode.FSTORE.write(out);
+                    else if (type == Type.DOUBLE) Opcode.DSTORE.write(out);
+                    else if (type == Type.OBJECT) Opcode.ASTORE.write(out);
+                } 
+                else {
+                    if (type == Type.INTEGER) Opcode.ILOAD.write(out);
+                    else if (type == Type.LONG) Opcode.LLOAD.write(out);
+                    else if (type == Type.FLOAT) Opcode.FLOAD.write(out);
+                    else if (type == Type.DOUBLE) Opcode.DLOAD.write(out);
+                    else if (type == Type.OBJECT) Opcode.ALOAD.write(out);
+                }
+                out.writeShort(index);
             }
-        } else if (this instanceof AccessArray) {
-            Type type = ((AccessArray) this).type;
-            if (((AccessArray) this).put) {
-                if (type == Type.INTEGER) {
-                    Opcode.IASTORE.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LASTORE.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FASTORE.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DASTORE.write(out);
-                } else if (type == Type.OBJECT) {
-                    Opcode.AASTORE.write(out);
-                } else if (type == Type.BYTE) {
-                    Opcode.BASTORE.write(out);
-                } else if (type == Type.CHAR) {
-                    Opcode.CASTORE.write(out);
-                } else if (type == Type.SHORT) {
-                    Opcode.SASTORE.write(out);
-                }
+        }
+        else if (this instanceof Array) {
+            Type type = ((Array) this).type;
+            if (((Array) this).put) {
+                if (type == Type.INTEGER) Opcode.IASTORE.write(out);
+                else if (type == Type.LONG) Opcode.LASTORE.write(out);
+                else if (type == Type.FLOAT) Opcode.FASTORE.write(out);
+                else if (type == Type.DOUBLE) Opcode.DASTORE.write(out);
+                else if (type == Type.OBJECT) Opcode.AASTORE.write(out);
+                else if (type == Type.BYTE) Opcode.BASTORE.write(out);
+                else if (type == Type.CHAR) Opcode.CASTORE.write(out);
+                else if (type == Type.SHORT) Opcode.SASTORE.write(out);
             } else {
-                if (type == Type.INTEGER) {
-                    Opcode.IALOAD.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LALOAD.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FALOAD.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DALOAD.write(out);
-                } else if (type == Type.OBJECT) {
-                    Opcode.AALOAD.write(out);
-                } else if (type == Type.BYTE) {
-                    Opcode.BALOAD.write(out);
-                } else if (type == Type.CHAR) {
-                    Opcode.CALOAD.write(out);
-                } else if (type == Type.SHORT) {
-                    Opcode.SALOAD.write(out);
-                }
+                if (type == Type.INTEGER) Opcode.IALOAD.write(out);
+                else if (type == Type.LONG) Opcode.LALOAD.write(out);
+                else if (type == Type.FLOAT) Opcode.FALOAD.write(out);
+                else if (type == Type.DOUBLE) Opcode.DALOAD.write(out);
+                else if (type == Type.OBJECT) Opcode.AALOAD.write(out);
+                else if (type == Type.BYTE) Opcode.BALOAD.write(out);
+                else if (type == Type.CHAR) Opcode.CALOAD.write(out);
+                else if (type == Type.SHORT) Opcode.SALOAD.write(out);
             }
-        } else if (this instanceof AccessStack) {
-            int type = ((AccessStack) this).opType;
-            boolean wide = ((AccessStack) this).wide;
-            if (type == 2) {
-                Opcode.SWAP.write(out);
-            } else if (type == 1) {
-                int mode = ((AccessStack) this).mode;
+        }
+        else if (this instanceof Stack) {
+            int type = ((Stack) this).opType;
+            boolean wide = ((Stack) this).wide;
+            if (type == 2) Opcode.SWAP.write(out);
+            else if (type == 1) {
+                int mode = ((Stack) this).mode;
                 if (!wide) {
-                    if (mode == 0) {
-                        Opcode.DUP.write(out);
-                    } else if (mode == 1) {
-                        Opcode.DUP_X1.write(out);
-                    } else if (mode == 2) {
-                        Opcode.DUP_X2.write(out);
-                    }
+                    if (mode == 0) Opcode.DUP.write(out);
+                    else if (mode == 1) Opcode.DUP_X1.write(out);
+                    else if (mode == 2) Opcode.DUP_X2.write(out);
                 } else {
-                    if (mode == 0) {
-                        Opcode.DUP2.write(out);
-                    } else if (mode == 1) {
-                        Opcode.DUP2_X1.write(out);
-                    } else if (mode == 2) {
-                        Opcode.DUP2_X2.write(out);
-                    }
+                    if (mode == 0) Opcode.DUP2.write(out);
+                    else if (mode == 1) Opcode.DUP2_X1.write(out);
+                    else if (mode == 2) Opcode.DUP2_X2.write(out);
                 }
             } else {
                 if (wide) Opcode.POP2.write(out);
                 else Opcode.POP.write(out);
             }
-        } else if (this instanceof ALU) {
-            Type type = ((ALU) this).type;
-            Operation mode = ((ALU) this).operation;
-            if (mode == Operation.ADD) {
-                if (type == Type.INTEGER) {
-                    Opcode.IADD.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LADD.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FADD.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DADD.write(out);
-                }
-            } else if (mode == Operation.SUBTRACT) {
-                if (type == Type.INTEGER) {
-                    Opcode.ISUB.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LSUB.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FSUB.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DSUB.write(out);
-                }
-            } else if (mode == Operation.MULTIPLY) {
-                if (type == Type.INTEGER) {
-                    Opcode.IMUL.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LMUL.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FMUL.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DMUL.write(out);
-                }
-            } else if (mode == Operation.DIVIDE) {
-                if (type == Type.INTEGER) {
-                    Opcode.IDIV.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LDIV.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FDIV.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DDIV.write(out);
-                }
-            } else if (mode == Operation.REMAINDER) {
-                if (type == Type.INTEGER) {
-                    Opcode.IREM.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LREM.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FREM.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DREM.write(out);
-                }
-            } else if (mode == Operation.NEGATE) {
-                if (type == Type.INTEGER) {
-                    Opcode.INEG.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LNEG.write(out);
-                } else if (type == Type.FLOAT) {
-                    Opcode.FNEG.write(out);
-                } else if (type == Type.DOUBLE) {
-                    Opcode.DNEG.write(out);
-                }
-            } else if (mode == Operation.SHIFT_LEFT) {
-                if (type == Type.INTEGER) {
-                    Opcode.ISHL.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LSHL.write(out);
-                }
-            } else if (mode == Operation.SHIFT_RIGHT) {
-                if (type == Type.INTEGER) {
-                    Opcode.ISHR.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LSHR.write(out);
-                }
-            } else if (mode == Operation.LOGICAL_SHIFT_RIGHT) {
-                if (type == Type.INTEGER) {
-                    Opcode.IUSHR.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LUSHR.write(out);
-                }
-            } else if (mode == Operation.BITWISE_AND) {
-                if (type == Type.INTEGER) {
-                    Opcode.IAND.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LAND.write(out);
-                }
-            } else if (mode == Operation.BITWISE_OR) {
-                if (type == Type.INTEGER) {
-                    Opcode.IOR.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LOR.write(out);
-                }
-            } else if (mode == Operation.BITWISE_XOR) {
-                if (type == Type.INTEGER) {
-                    Opcode.IXOR.write(out);
-                } else if (type == Type.LONG) {
-                    Opcode.LXOR.write(out);
-                }
-            }
-        } else if (this instanceof Increment) {
-            Opcode.IINC.write(out);
-            out.writeByte(((Increment) this).index);
-            out.writeByte(((Increment) this).count);
-        } else if (this instanceof TypeToType) {
-            Type from = ((TypeToType) this).from;
-            Type to = ((TypeToType) this).to;
-            if (from == Type.INTEGER) {
-                if (to == Type.LONG) {
-                    Opcode.I2L.write(out);
-                } else if (to == Type.FLOAT) {
-                    Opcode.I2F.write(out);
-                } else if (to == Type.DOUBLE) {
-                    Opcode.I2D.write(out);
-                } else if (to == Type.BYTE) {
-                    Opcode.I2B.write(out);
-                } else if (to == Type.CHAR) {
-                    Opcode.I2C.write(out);
-                } else if (to == Type.SHORT) {
-                    Opcode.I2S.write(out);
-                }
-            } else if (from == Type.LONG) {
-                if (to == Type.INTEGER) {
-                    Opcode.L2I.write(out);
-                } else if (to == Type.FLOAT) {
-                    Opcode.L2F.write(out);
-                } else if (to == Type.DOUBLE) {
-                    Opcode.L2D.write(out);
-                }
-            } else if (from == Type.FLOAT) {
-                if (to == Type.INTEGER) {
-                    Opcode.F2I.write(out);
-                } else if (to == Type.LONG) {
-                    Opcode.F2L.write(out);
-                } else if (to == Type.DOUBLE) {
-                    Opcode.F2D.write(out);
-                }
-            } else if (from == Type.DOUBLE) {
-                if (to == Type.INTEGER) {
-                    Opcode.D2I.write(out);
-                } else if (to == Type.LONG) {
-                    Opcode.D2L.write(out);
-                } else if (to == Type.FLOAT) {
-                    Opcode.D2F.write(out);
-                }
-            }
-        } else if (this instanceof Compare) {
-            Type type = ((Compare) this).type;
-            boolean positiveOnNAN = ((Compare) this).positiveOnNAN;
-            if (type == Type.LONG)
-                Opcode.LCMP.write(out);
-            else if (type == Type.DOUBLE) {
-                if (positiveOnNAN) Opcode.DCMPG.write(out);
-                else Opcode.DCMPL.write(out);
-            } else if (type == Type.FLOAT) {
-                if (positiveOnNAN) Opcode.FCMPG.write(out);
-                else Opcode.FCMPL.write(out);
-            }
-        } else if (this instanceof Jump) {
-            boolean wide = ((Jump) this).wide;
-            int opType = ((Jump) this).opType;
-            if (opType != 2) {
-                if (opType == 0) {
-                    if (wide)
-                        Opcode.JSR_W.write(out);
-                    else
-                        Opcode.JSR.write(out);
-                } else {
-                    if (wide)
-                        Opcode.GOTO_W.write(out);
-                    else
-                        Opcode.GOTO.write(out);
-                }
+        }
+        else if (this instanceof Field) {
+            if (((Field) this).put) {
+                if (((Field) this).isStatic) Opcode.PUTSTATIC.write(out);
+                else Opcode.PUTFIELD.write(out);
             } else {
-                Type type = ((Jump) this).type;
-                Condition condition = ((Jump) this).condition;
-                if (condition == Condition.EQUAL) {
-                    if (type == Type.INTEGER) {
-                        Opcode.IF_ICMPEQ.write(out);
-                    } else if (type == Type.OBJECT) {
-                        Opcode.IF_ACMPEQ.write(out);
-                    } else {
-                        Opcode.IFEQ.write(out);
-                    }
-                } else if (condition == Condition.NOT_EQUAL) {
-                    if (type == Type.INTEGER) {
-                        Opcode.IF_ICMPNE.write(out);
-                    } else if (type == Type.OBJECT) {
-                        Opcode.IF_ACMPNE.write(out);
-                    } else {
-                        Opcode.IFNE.write(out);
-                    }
-                } else if (condition == Condition.LESS_THEN) {
-                    if (type == Type.INTEGER) {
-                        Opcode.IF_ICMPLT.write(out);
-                    } else {
-                        Opcode.IFLT.write(out);
-                    }
-                } else if (condition == Condition.GREATER_THEN_OR_EQUAL) {
-                    if (type == Type.INTEGER) {
-                        Opcode.IF_ICMPGE.write(out);
-                    } else {
-                        Opcode.IFGE.write(out);
-                    }
-                } else if (condition == Condition.GREATER_THEN) {
-                    if (type == Type.INTEGER) {
-                        Opcode.IF_ICMPGT.write(out);
-                    } else {
-                        Opcode.IFGT.write(out);
-                    }
-                } else if (condition == Condition.LESS_THEN_OR_EQUAL) {
-                    if (type == Type.INTEGER) {
-                        Opcode.IF_ICMPLE.write(out);
-                    } else {
-                        Opcode.IFLE.write(out);
-                    }
-                } else if (condition == Condition.NULL) {
-                    Opcode.IFNULL.write(out);
-                } else if (condition == Condition.NOT_NULL) {
-                    Opcode.IFNONNULL.write(out);
-                }
+                if (((Field) this).isStatic) Opcode.GETSTATIC.write(out);
+                else Opcode.GETFIELD.write(out);
             }
-            if (wide)
-                out.writeInt(((Jump) this).offset);
-            else
-                out.writeShort(((Jump) this).offset);
-        } else if (this instanceof JumpReturn) {
-            Opcode.RET.write(out);
-            out.writeByte(((JumpReturn) this).local);
-        } else if (this instanceof TableSwitch) {
-            Opcode.TABLESWITCH.write(out);
-            byte[] padding = new byte[((TableSwitch) this).padding];
-            out.write(padding);
-            out.writeInt(((TableSwitch) this).defaultOffset);
-            out.writeInt(((TableSwitch) this).lowRange);
-            out.writeInt(((TableSwitch) this).highRange);
-            for (int caseOffset : ((TableSwitch) this).caseOffsets) out.writeInt(caseOffset);
-        } else if (this instanceof LookupSwitch) {
-            Opcode.LOOKUPSWITCH.write(out);
-            byte[] padding = new byte[((LookupSwitch) this).padding];
-            out.write(padding);
-            out.writeInt(((LookupSwitch) this).defaultOffset);
-            out.writeInt(((LookupSwitch) this).pairsCount);
-            for (LookupSwitch.Pair pair : ((LookupSwitch) this).pairs) {
-                out.writeInt(pair.match);
-                out.writeInt(pair.offset);
-            }
-        } else if (this instanceof Return) {
-            Type type = ((Return) this).type;
-            if (type == Type.INTEGER) {
-                Opcode.IRETURN.write(out);
-            } else if (type == Type.LONG) {
-                Opcode.LRETURN.write(out);
-            } else if (type == Type.FLOAT) {
-                Opcode.FRETURN.write(out);
-            } else if (type == Type.DOUBLE) {
-                Opcode.DRETURN.write(out);
-            } else if (type == Type.OBJECT) {
-                Opcode.ARETURN.write(out);
-            } else if (type == Type.NONE) {
-                Opcode.RETURN.write(out);
-            }
-        } else if (this instanceof AccessField) {
-            if (((AccessField) this).put) {
-                if (((AccessField) this).isStatic) {
-                    Opcode.PUTSTATIC.write(out);
-                } else {
-                    Opcode.PUTFIELD.write(out);
-                }
-            } else {
-                if (((AccessField) this).isStatic) {
-                    Opcode.GETSTATIC.write(out);
-                } else {
-                    Opcode.GETFIELD.write(out);
-                }
-            }
-            out.writeShort(cp.indexOf(((AccessField) this).info));
-        } else if (this instanceof InvokeMethod) {
-            switch (((InvokeMethod) this).type) {
+            out.writeShort(cp.indexOf(((Field) this).info));
+        }
+        else if (this instanceof Method) {
+            switch (((Method) this).type) {
                 case VIRTUAL:
                     Opcode.INVOKEVIRTUAL.write(out);
                     break;
@@ -1291,36 +992,224 @@ public abstract class Instruction {
                     Opcode.INVOKEINTERFACE.write(out);
                     break;
             }
-            out.writeShort(cp.indexOf(((InvokeMethod) this).info));
-            if (((InvokeMethod) this).type == InvokeType.INTERFACE) {
-                out.writeByte(((InvokeMethod) this).count);
+            out.writeShort(cp.indexOf(((Method) this).info));
+            if (((Method) this).type == InvokeType.INTERFACE) {
+                out.writeByte(((Method) this).count);
                 out.writeByte(0);
             }
-        } else if (this instanceof InvokeDynamic.RawInvokeDynamic) {
+        }
+        else if (this instanceof DynamicMethod.RawInvokeDynamic) {
             Opcode.INVOKEDYNAMIC.write(out);
-            out.writeShort(cp.indexOf(((InvokeDynamic.RawInvokeDynamic) this).info));
+            out.writeShort(cp.indexOf(((DynamicMethod.RawInvokeDynamic) this).info));
             out.writeShort(0);
-        } else if (this instanceof New) {
+        }
+        else if (this instanceof New) {
             int type = ((New) this).opType;
-            if (type != 0) {
-                if (type == 2)
-                    Opcode.MULTIANEWARRAY.write(out);
-                else
-                    Opcode.ANEWARRAY.write(out);
-            } else
-                Opcode.NEW.write(out);
-            out.writeShort(cp.indexOf(((New) this).info));
-            if (type == 2) {
-                out.writeByte(((New) this).dimensions);
+            if (type != 3) {
+                if (type != 0) {
+                    if (type == 2) Opcode.MULTIANEWARRAY.write(out);
+                    else Opcode.ANEWARRAY.write(out);
+                } else Opcode.NEW.write(out);
+                out.writeShort(cp.indexOf(((New) this).info));
+                if (type == 2) out.writeByte(((New) this).data);
+            } else {
+                Opcode.NEWARRAY.write(out);
+                out.writeByte(((New) this).data);
             }
-        } else if (this instanceof NewPrimitiveArray) {
-            Opcode.NEWARRAY.write(out);
-            out.writeByte(((NewPrimitiveArray) this).type);
-        } else if (this instanceof ArrayLength) {
+        }
+        else if (this instanceof ALU) {
+            Type type = ((ALU) this).type;
+            Operation mode = ((ALU) this).operation;
+            if (mode == Operation.ADD) {
+                if (type == Type.INTEGER) Opcode.IADD.write(out);
+                else if (type == Type.LONG) Opcode.LADD.write(out);
+                else if (type == Type.FLOAT) Opcode.FADD.write(out);
+                else if (type == Type.DOUBLE) Opcode.DADD.write(out);
+            } else if (mode == Operation.SUBTRACT) {
+                if (type == Type.INTEGER) Opcode.ISUB.write(out);
+                else if (type == Type.LONG) Opcode.LSUB.write(out);
+                else if (type == Type.FLOAT) Opcode.FSUB.write(out);
+                else if (type == Type.DOUBLE) Opcode.DSUB.write(out);
+            } else if (mode == Operation.MULTIPLY) {
+                if (type == Type.INTEGER) Opcode.IMUL.write(out);
+                else if (type == Type.LONG) Opcode.LMUL.write(out);
+                else if (type == Type.FLOAT) Opcode.FMUL.write(out);
+                else if (type == Type.DOUBLE) Opcode.DMUL.write(out);
+            } else if (mode == Operation.DIVIDE) {
+                if (type == Type.INTEGER) Opcode.IDIV.write(out);
+                else if (type == Type.LONG) Opcode.LDIV.write(out);
+                else if (type == Type.FLOAT) Opcode.FDIV.write(out);
+                else if (type == Type.DOUBLE) Opcode.DDIV.write(out);
+            } else if (mode == Operation.REMAINDER) {
+                if (type == Type.INTEGER) Opcode.IREM.write(out);
+                else if (type == Type.LONG) Opcode.LREM.write(out);
+                else if (type == Type.FLOAT) Opcode.FREM.write(out);
+                else if (type == Type.DOUBLE) Opcode.DREM.write(out);
+            } else if (mode == Operation.NEGATE) {
+                if (type == Type.INTEGER) Opcode.INEG.write(out);
+                else if (type == Type.LONG) Opcode.LNEG.write(out);
+                else if (type == Type.FLOAT) Opcode.FNEG.write(out);
+                else if (type == Type.DOUBLE) Opcode.DNEG.write(out);
+            } else if (mode == Operation.SHIFT_LEFT) {
+                if (type == Type.INTEGER) Opcode.ISHL.write(out);
+                else if (type == Type.LONG) Opcode.LSHL.write(out);
+            } else if (mode == Operation.SHIFT_RIGHT) {
+                if (type == Type.INTEGER) Opcode.ISHR.write(out);
+                else if (type == Type.LONG) Opcode.LSHR.write(out);
+            } else if (mode == Operation.LOGICAL_SHIFT_RIGHT) {
+                if (type == Type.INTEGER) Opcode.IUSHR.write(out);
+                else if (type == Type.LONG) Opcode.LUSHR.write(out);
+            } else if (mode == Operation.BITWISE_AND) {
+                if (type == Type.INTEGER) Opcode.IAND.write(out);
+                else if (type == Type.LONG) Opcode.LAND.write(out);
+            } else if (mode == Operation.BITWISE_OR) {
+                if (type == Type.INTEGER) Opcode.IOR.write(out);
+                else if (type == Type.LONG) Opcode.LOR.write(out);
+            } else if (mode == Operation.BITWISE_XOR) {
+                if (type == Type.INTEGER) Opcode.IXOR.write(out);
+                else if (type == Type.LONG) Opcode.LXOR.write(out);
+            }
+        }
+        else if (this instanceof Increment) {
+            int index = ((Increment) this).index;
+            int count = ((Increment) this).count;
+            if (index > 255 || count > 255) {
+                Opcode.WIDE.write(out);
+                Opcode.IINC.write(out);
+                out.writeShort(index);
+                out.writeShort(count);
+            } else {
+                Opcode.IINC.write(out);
+                out.writeByte(index);
+                out.writeByte(count);
+            }
+        }
+        else if (this instanceof TypeToType) {
+            Type from = ((TypeToType) this).from;
+            Type to = ((TypeToType) this).to;
+            if (from == Type.INTEGER) {
+                if (to == Type.LONG) Opcode.I2L.write(out);
+                else if (to == Type.FLOAT) Opcode.I2F.write(out);
+                else if (to == Type.DOUBLE) Opcode.I2D.write(out);
+                else if (to == Type.BYTE) Opcode.I2B.write(out);
+                else if (to == Type.CHAR) Opcode.I2C.write(out);
+                else if (to == Type.SHORT) Opcode.I2S.write(out);
+            } else if (from == Type.LONG) {
+                if (to == Type.INTEGER) Opcode.L2I.write(out);
+                else if (to == Type.FLOAT) Opcode.L2F.write(out);
+                else if (to == Type.DOUBLE) Opcode.L2D.write(out);
+            } else if (from == Type.FLOAT) {
+                if (to == Type.INTEGER) Opcode.F2I.write(out);
+                else if (to == Type.LONG) Opcode.F2L.write(out);
+                else if (to == Type.DOUBLE) Opcode.F2D.write(out);
+            } else if (from == Type.DOUBLE) {
+                if (to == Type.INTEGER) Opcode.D2I.write(out);
+                else if (to == Type.LONG) Opcode.D2L.write(out);
+                else if (to == Type.FLOAT) Opcode.D2F.write(out);
+            }
+        }
+        else if (this instanceof Compare) {
+            Type type = ((Compare) this).type;
+            boolean positiveOnNAN = ((Compare) this).positiveOnNAN;
+            if (type == Type.LONG) Opcode.LCMP.write(out);
+            else if (type == Type.DOUBLE) {
+                if (positiveOnNAN) Opcode.DCMPG.write(out);
+                else Opcode.DCMPL.write(out);
+            } else if (type == Type.FLOAT) {
+                if (positiveOnNAN) Opcode.FCMPG.write(out);
+                else Opcode.FCMPL.write(out);
+            }
+        }
+        else if (this instanceof Jump) {
+            boolean wide = ((Jump) this).wide;
+            int opType = ((Jump) this).opType;
+            if (opType != 2) {
+                if (opType == 0) {
+                    if (wide) Opcode.JSR_W.write(out);
+                    else Opcode.JSR.write(out);
+                } else {
+                    if (wide) Opcode.GOTO_W.write(out);
+                    else Opcode.GOTO.write(out);
+                }
+            } else {
+                Type type = ((Jump) this).type;
+                Condition condition = ((Jump) this).condition;
+                if (condition == Condition.EQUAL) {
+                    if (type == Type.INTEGER) Opcode.IF_ICMPEQ.write(out);
+                    else if (type == Type.OBJECT) Opcode.IF_ACMPEQ.write(out);
+                    else Opcode.IFEQ.write(out);
+                } else if (condition == Condition.NOT_EQUAL) {
+                    if (type == Type.INTEGER) Opcode.IF_ICMPNE.write(out);
+                    else if (type == Type.OBJECT) Opcode.IF_ACMPNE.write(out);
+                    else Opcode.IFNE.write(out);
+                } else if (condition == Condition.LESS_THEN) {
+                    if (type == Type.INTEGER) Opcode.IF_ICMPLT.write(out);
+                    else Opcode.IFLT.write(out);
+                } else if (condition == Condition.GREATER_THEN_OR_EQUAL) {
+                    if (type == Type.INTEGER) Opcode.IF_ICMPGE.write(out);
+                    else Opcode.IFGE.write(out);
+                } else if (condition == Condition.GREATER_THEN) {
+                    if (type == Type.INTEGER) Opcode.IF_ICMPGT.write(out);
+                    else Opcode.IFGT.write(out);
+                } else if (condition == Condition.LESS_THEN_OR_EQUAL) {
+                    if (type == Type.INTEGER) Opcode.IF_ICMPLE.write(out);
+                    else Opcode.IFLE.write(out);
+                } else if (condition == Condition.NULL) Opcode.IFNULL.write(out);
+                else if (condition == Condition.NOT_NULL) Opcode.IFNONNULL.write(out);
+            }
+            if (wide) out.writeInt(((Jump) this).offset);
+            else out.writeShort(((Jump) this).offset);
+        }
+        else if (this instanceof JumpReturn) {
+            int index = ((JumpReturn) this).index;
+            if (index < 256) {
+                Opcode.RET.write(out);
+                out.writeByte(((JumpReturn) this).index);
+            } else {
+                Opcode.WIDE.write(out);
+                Opcode.RET.write(out);
+                out.writeShort(((JumpReturn) this).index);
+            }
+        }
+        else if (this instanceof TableSwitch) {
+            Opcode.TABLESWITCH.write(out);
+            byte[] padding = new byte[((TableSwitch) this).padding];
+            out.write(padding);
+            out.writeInt(((TableSwitch) this).defaultOffset);
+            out.writeInt(((TableSwitch) this).lowRange);
+            out.writeInt(((TableSwitch) this).highRange);
+            for (int caseOffset : ((TableSwitch) this).caseOffsets) out.writeInt(caseOffset);
+        }
+        else if (this instanceof LookupSwitch) {
+            Opcode.LOOKUPSWITCH.write(out);
+            byte[] padding = new byte[((LookupSwitch) this).padding];
+            out.write(padding);
+            out.writeInt(((LookupSwitch) this).defaultOffset);
+            out.writeInt(((LookupSwitch) this).pairsCount);
+            for (LookupSwitch.Pair pair : ((LookupSwitch) this).pairs) {
+                out.writeInt(pair.match);
+                out.writeInt(pair.offset);
+            }
+        }
+        else if (this instanceof Return) {
+            Type type = ((Return) this).type;
+            if (type == Type.INTEGER) Opcode.IRETURN.write(out);
+            else if (type == Type.LONG) Opcode.LRETURN.write(out);
+            else if (type == Type.FLOAT) Opcode.FRETURN.write(out);
+            else if (type == Type.DOUBLE) Opcode.DRETURN.write(out);
+            else if (type == Type.OBJECT) Opcode.ARETURN.write(out);
+            else if (type == Type.NONE) Opcode.RETURN.write(out);
+        }
+        else if (this instanceof Nop) {
+            Opcode.NOP.write(out);
+        }
+        else if (this instanceof ArrayLength) {
             Opcode.ARRAYLENGTH.write(out);
-        } else if (this instanceof Throw) {
+        }
+        else if (this instanceof Throw) {
             Opcode.ATHROW.write(out);
-        } else if (this instanceof Cast) {
+        }
+        else if (this instanceof Cast) {
             if (((Cast) this).check) {
                 Opcode.INSTANCEOF.write(out);
                 out.writeShort(cp.indexOf(((Cast) this).info));
@@ -1328,23 +1217,14 @@ public abstract class Instruction {
                 Opcode.CHECKCAST.write(out);
                 out.writeShort(cp.indexOf(((Cast) this).info));
             }
-        } else if (this instanceof Monitor) {
+        }
+        else if (this instanceof Monitor) {
             if (((Monitor) this).enter) Opcode.MONITORENTER.write(out);
             else Opcode.MONITOREXIT.write(out);
-        } else if (this instanceof Wide) {
-            Opcode.WIDE.write(out);
-            int index = ((Wide) this).index;
-            boolean isIncrement = ((Wide) this).isIncrement;
-            if (isIncrement) {
-                Opcode.IINC.write(out);
-                out.writeShort(index);
-                out.writeShort(((Wide) this).count);
-            } else {
-                ((Wide) this).opcode.write(out);
-                out.writeShort(index);
-            }
-        } else if (this instanceof BreakPoint)
+        }
+        else if (this instanceof BreakPoint) {
             Opcode.BREAKPOINT.write(out);
+        }
         else if (this instanceof ImpDep) {
             if (((ImpDep) this).second)
                 Opcode.IMPDEP1.write(out);
@@ -1355,16 +1235,16 @@ public abstract class Instruction {
 
     public void toPool(ConstantPoolBuilder cp) {}
 
-    public static class LoadDirectConst extends Instruction {
+    public static class Constant extends Instruction {
         public Type type;
         public Object value;
 
-        public LoadDirectConst(Type type, Object value) {
+        public Constant(Type type, Object value) {
             this.type = type;
             this.value = value;
         }
 
-        public LoadDirectConst(DataInputStream str, Type type) throws IOException {
+        public Constant(DataInputStream str, Type type) throws IOException {
             this.type = type;
             if (type == Type.BYTE)
                 this.value = str.readUnsignedByte();
@@ -1373,23 +1253,20 @@ public abstract class Instruction {
         }
     }
 
-    public static class LoadConst extends Instruction {
+    public static class LoadConstant extends Instruction {
         public Object constant;
-        public boolean wide;
         public FieldInfo info = null;
 
-        public LoadConst(RawLoadConst raw, ClassFile.BootstrapMethod[] methods) {
+        public LoadConstant(RawLoadConst raw, ClassFile.BootstrapMethod[] methods) {
             if (raw.constant instanceof BootstrapFieldInfo) {
                 constant = methods[((BootstrapFieldInfo) raw.constant).index];
                 info = ((BootstrapFieldInfo) raw.constant).getInfo();
             } else
                 constant = raw.constant;
-            wide = raw.wide;
         }
 
         public RawLoadConst toRaw(List<ClassFile.BootstrapMethod> methods) {
             RawLoadConst newRaw = new RawLoadConst();
-            newRaw.wide = wide;
             if (!(constant instanceof ClassFile.BootstrapMethod)) {
                 newRaw.constant = constant;
             } else {
@@ -1414,7 +1291,6 @@ public abstract class Instruction {
 
         public static class RawLoadConst extends Instruction {
             public Object constant;
-            public boolean wide;
 
             protected RawLoadConst() {
 
@@ -1423,59 +1299,58 @@ public abstract class Instruction {
             public RawLoadConst(DataInputStream str, ConstantPool cp, boolean readWide) throws IOException {
                 int index = readWide ? str.readUnsignedShort() : str.readUnsignedByte();
                 constant = cp.ro(index);
-                wide = constant instanceof Double || constant instanceof Long;
             }
         }
     }
 
-    public static class AccessLocal extends Instruction {
+    public static class Local extends Instruction {
         public Type type;
         public int index;
         public boolean put;
 
-        public AccessLocal(Type type, int index, boolean put) {
+        public Local(Type type, int index, boolean put) {
             this.type = type;
             this.index = index;
             this.put = put;
         }
     }
 
-    public static class AccessArray extends Instruction {
+    public static class Array extends Instruction {
         public Type type;
         public boolean put;
 
-        public AccessArray(Type type, boolean put) {
+        public Array(Type type, boolean put) {
             this.type = type;
             this.put = put;
         }
     }
 
-    public static class AccessStack extends Instruction {
+    public static class Stack extends Instruction {
         public int opType = 0;
         public boolean wide = false;
         public int mode = 0;
 
-        public AccessStack(boolean wide) {
+        public Stack(boolean wide) {
             this.wide = wide;
         }
 
-        public AccessStack(boolean wide, int mode) {
+        public Stack(boolean wide, int mode) {
             this.opType = 1;
             this.wide = wide;
             this.mode = mode;
         }
 
-        public AccessStack() {
+        public Stack() {
             this.opType = 2;
         }
     }
 
-    public static class AccessField extends Instruction {
+    public static class Field extends Instruction {
         public ClassFieldInfo info;
         public boolean isStatic;
         public boolean put;
 
-        public AccessField(boolean isStatic, boolean put, DataInputStream str, ConstantPool cp) throws IOException {
+        public Field(boolean isStatic, boolean put, DataInputStream str, ConstantPool cp) throws IOException {
             info = (ClassFieldInfo) cp.ro(str.readUnsignedShort());
             this.isStatic = isStatic;
             this.put = put;
@@ -1487,12 +1362,12 @@ public abstract class Instruction {
         }
     }
 
-    public static class InvokeMethod extends Instruction {
+    public static class Method extends Instruction {
         public ClassMethodInfo info;
         public int count = 0;
         public InvokeType type;
 
-        public InvokeMethod(InvokeType type, DataInputStream str, ConstantPool cp) throws IOException {
+        public Method(InvokeType type, DataInputStream str, ConstantPool cp) throws IOException {
             info = (ClassMethodInfo) cp.ro(str.readUnsignedShort());
             this.type = type;
             if (type == InvokeType.INTERFACE) {
@@ -1507,11 +1382,11 @@ public abstract class Instruction {
         }
     }
 
-    public static class InvokeDynamic extends Instruction {
+    public static class DynamicMethod extends Instruction {
         public ClassFile.BootstrapMethod method;
         public MethodInfo info;
 
-        public InvokeDynamic(RawInvokeDynamic raw, ClassFile.BootstrapMethod[] methods) {
+        public DynamicMethod(RawInvokeDynamic raw, ClassFile.BootstrapMethod[] methods) {
             method = methods[raw.info.index].clone();
             info = raw.info.getInfo();
         }
@@ -1544,6 +1419,28 @@ public abstract class Instruction {
         }
     }
 
+    public static class New extends Instruction {
+        public ClassInfo info = null;
+        public int opType;
+        public int data = 0;
+
+        public New(int opType, DataInputStream str, ConstantPool cp) throws IOException {
+            info = (ClassInfo) cp.ro(str.readUnsignedShort());
+            this.opType = opType;
+            if (opType == 2) data = str.readUnsignedByte();
+        }
+
+        public New(DataInputStream str) throws IOException {
+            opType = 3;
+            data = str.readUnsignedByte();
+        }
+
+        @Override
+        public void toPool(ConstantPoolBuilder cp) {
+            cp.add(info);
+        }
+    }
+
 
     public static class ALU extends Instruction {
         public Operation operation;
@@ -1559,9 +1456,14 @@ public abstract class Instruction {
         public int index;
         public int count;
 
-        public Increment(DataInputStream str) throws IOException {
-            index = str.readUnsignedByte();
-            count = str.readUnsignedByte();
+        public Increment(boolean wide, DataInputStream str) throws IOException {
+            if (!wide) {
+                index = str.readUnsignedByte();
+                count = str.readUnsignedByte();
+            } else {
+                index = str.readUnsignedShort();
+                count = str.readUnsignedShort();
+            }
         }
     }
 
@@ -1608,10 +1510,10 @@ public abstract class Instruction {
     }
 
     public static class JumpReturn extends Instruction {
-        public int local;
+        public int index;
 
-        public JumpReturn(DataInputStream str) throws IOException {
-            local = str.readUnsignedByte();
+        public JumpReturn(boolean wide, DataInputStream str) throws IOException {
+            index = wide ? str.readUnsignedShort() : str.readUnsignedByte();
         }
     }
 
@@ -1693,51 +1595,6 @@ public abstract class Instruction {
 
         public Return(Type type) {
             this.type = type;
-        }
-    }
-
-
-    public static class New extends Instruction {
-        public ClassInfo info;
-        public int opType;
-        public int dimensions = 0;
-
-        public New(int opType, DataInputStream str, ConstantPool cp) throws IOException {
-            info = (ClassInfo) cp.ro(str.readUnsignedShort());
-            this.opType = opType;
-            if (opType == 2) dimensions = str.readUnsignedByte();
-        }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {
-            cp.add(info);
-        }
-    }
-
-    public static class NewPrimitiveArray extends Instruction {
-        public int type;
-
-        public NewPrimitiveArray(DataInputStream str) throws IOException {
-            type = str.readUnsignedByte();
-        }
-    }
-
-
-    public static class Wide extends Instruction {
-        public boolean isIncrement;
-        public Opcode opcode;
-        public int index;
-        public int count = 0;
-
-        public Wide(DataInputStream str) throws IOException {
-            opcode = Opcode.get(str.readUnsignedByte());
-            index = str.readUnsignedShort();
-            if (Opcode.IINC == opcode) {
-                isIncrement = true;
-                count = str.readUnsignedShort();
-            } else {
-                isIncrement = false;
-            }
         }
     }
 

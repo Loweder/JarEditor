@@ -129,17 +129,17 @@ public abstract class MethodNameEditor extends NameEditor<ClassMethodInfo, Strin
         }
     }
     private void mapInstruction(Instruction instruction) {
-        if (instruction instanceof Instruction.LoadConst) {
-            mapConstant(((Instruction.LoadConst) instruction).constant);
-            if (((Instruction.LoadConst) instruction).constant instanceof ClassFile.BootstrapMethod) {
-                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConst) instruction).constant).args)
+        if (instruction instanceof Instruction.LoadConstant) {
+            mapConstant(((Instruction.LoadConstant) instruction).constant);
+            if (((Instruction.LoadConstant) instruction).constant instanceof ClassFile.BootstrapMethod) {
+                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConstant) instruction).constant).args)
                     mapConstant(arg);
             }
-        } else if (instruction instanceof Instruction.InvokeMethod)
-            ((Instruction.InvokeMethod) instruction).info.name = map(((Instruction.InvokeMethod) instruction).info);
-        else if (instruction instanceof Instruction.InvokeDynamic) {
-            mapConstant(((Instruction.InvokeDynamic) instruction).method);
-            for (Object arg : ((Instruction.InvokeDynamic) instruction).method.args) mapConstant(arg);
+        } else if (instruction instanceof Instruction.Method)
+            ((Instruction.Method) instruction).info.name = map(((Instruction.Method) instruction).info);
+        else if (instruction instanceof Instruction.DynamicMethod) {
+            mapConstant(((Instruction.DynamicMethod) instruction).method);
+            for (Object arg : ((Instruction.DynamicMethod) instruction).method.args) mapConstant(arg);
         }
     }
     private void mapRecordComponent(ClassFile.RecordComponent component) {

@@ -21,10 +21,10 @@ public class MyProgram {
                 case 0:
                     arr[i] = 0;
                     break;
-                case 1:
+                case 2:
                     arr[i] = 1;
                     break;
-                case 2:
+                case 4:
                     arr[i] = 2;
                     break label;
                 default:

@@ -64,10 +64,10 @@ public class ClassFile {
                 for (Method method : main.methods)
                     if (method.code != null)
                         for (int i = 0; i < method.code.instructions.length; i++)
-                            if (method.code.instructions[i] instanceof Instruction.InvokeDynamic.RawInvokeDynamic)
-                                method.code.instructions[i] = new Instruction.InvokeDynamic((Instruction.InvokeDynamic.RawInvokeDynamic) method.code.instructions[i], bootstrapMethods);
-                            else if (method.code.instructions[i] instanceof Instruction.LoadConst.RawLoadConst)
-                                method.code.instructions[i] = new Instruction.LoadConst((Instruction.LoadConst.RawLoadConst) method.code.instructions[i], bootstrapMethods);
+                            if (method.code.instructions[i] instanceof Instruction.DynamicMethod.RawInvokeDynamic)
+                                method.code.instructions[i] = new Instruction.DynamicMethod((Instruction.DynamicMethod.RawInvokeDynamic) method.code.instructions[i], bootstrapMethods);
+                            else if (method.code.instructions[i] instanceof Instruction.LoadConstant.RawLoadConst)
+                                method.code.instructions[i] = new Instruction.LoadConstant((Instruction.LoadConstant.RawLoadConst) method.code.instructions[i], bootstrapMethods);
     }
 
     private Object parseAttribute(DataInputStream in, ConstantPool cp) throws IOException {
@@ -273,10 +273,10 @@ public class ClassFile {
                 for (Method method : main.methods) {
                     if (method.code != null)
                         for (int i = 0; i < method.code.instructions.length; i++)
-                            if (method.code.instructions[i] instanceof Instruction.InvokeDynamic)
-                                method.code.instructions[i] = ((Instruction.InvokeDynamic) method.code.instructions[i]).toRaw(bootstrapMethodList);
-                            else if (method.code.instructions[i] instanceof Instruction.LoadConst)
-                                method.code.instructions[i] = ((Instruction.LoadConst) method.code.instructions[i]).toRaw(bootstrapMethodList);
+                            if (method.code.instructions[i] instanceof Instruction.DynamicMethod)
+                                method.code.instructions[i] = ((Instruction.DynamicMethod) method.code.instructions[i]).toRaw(bootstrapMethodList);
+                            else if (method.code.instructions[i] instanceof Instruction.LoadConstant)
+                                method.code.instructions[i] = ((Instruction.LoadConstant) method.code.instructions[i]).toRaw(bootstrapMethodList);
                     method.toStream(out, cp);
                 }
             } else {

@@ -183,20 +183,20 @@ public abstract class ClassNameEditor extends NameEditor<ClassInfo, ClassInfo> {
         }
     }
     private void mapInstruction(Instruction instruction) {
-        if (instruction instanceof Instruction.LoadConst) {
-            mapConstant(((Instruction.LoadConst) instruction).constant);
-            if (((Instruction.LoadConst) instruction).constant instanceof ClassFile.BootstrapMethod) {
-                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConst) instruction).constant).args) mapConstant(arg);
-                mapDescriptor(((Instruction.LoadConst) instruction).info.desc);
+        if (instruction instanceof Instruction.LoadConstant) {
+            mapConstant(((Instruction.LoadConstant) instruction).constant);
+            if (((Instruction.LoadConstant) instruction).constant instanceof ClassFile.BootstrapMethod) {
+                for (Object arg : ((ClassFile.BootstrapMethod) ((Instruction.LoadConstant) instruction).constant).args) mapConstant(arg);
+                mapDescriptor(((Instruction.LoadConstant) instruction).info.desc);
             }
-        } else if (instruction instanceof Instruction.AccessField) {
-            mapConstant(((Instruction.AccessField) instruction).info);
-        } else if (instruction instanceof Instruction.InvokeMethod) {
-            mapConstant(((Instruction.InvokeMethod) instruction).info);
-        } else if (instruction instanceof Instruction.InvokeDynamic) {
-            mapConstant(((Instruction.InvokeDynamic) instruction).method);
-            for (Object arg : ((Instruction.InvokeDynamic) instruction).method.args) mapConstant(arg);
-            mapDescriptor(((Instruction.InvokeDynamic) instruction).info.desc);
+        } else if (instruction instanceof Instruction.Field) {
+            mapConstant(((Instruction.Field) instruction).info);
+        } else if (instruction instanceof Instruction.Method) {
+            mapConstant(((Instruction.Method) instruction).info);
+        } else if (instruction instanceof Instruction.DynamicMethod) {
+            mapConstant(((Instruction.DynamicMethod) instruction).method);
+            for (Object arg : ((Instruction.DynamicMethod) instruction).method.args) mapConstant(arg);
+            mapDescriptor(((Instruction.DynamicMethod) instruction).info.desc);
         } else if (instruction instanceof Instruction.New)
             ((Instruction.New) instruction).info = map(((Instruction.New) instruction).info);
         else if (instruction instanceof Instruction.Cast)
