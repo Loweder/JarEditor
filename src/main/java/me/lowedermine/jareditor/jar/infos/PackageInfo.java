@@ -1,14 +1,20 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.utils.MyCloneable;
+import me.lowedermine.jareditor.utils.IMyCloneable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
-public class PackageInfo implements MyCloneable {
+public class PackageInfo implements IMyCloneable {
     public String[] name;
 
     public PackageInfo(String in) {
-        name = in.split("\\.");
+        if (in == null || in.length() == 0) {
+            name = null;
+            return;
+        }
+        in = in.replace('.', '/');
+        name = in.split("/");
     }
 
     @Override
@@ -24,8 +30,18 @@ public class PackageInfo implements MyCloneable {
         return Arrays.hashCode(name);
     }
 
+    public boolean startsWith(PackageInfo info) {
+        if (name == null) return info.name == null;
+        if (info.name.length > name.length) return false;
+        for (int i = 0; i < info.name.length; i++) {
+            if (!Objects.equals(name[i], info.name[i]))
+                return false;
+        }
+        return true;
+    }
+
     public String toRaw() {
-        return String.join(".", name);
+        return name == null ? "" : String.join(".", name);
     }
 
     @Override

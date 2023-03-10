@@ -17,11 +17,11 @@ public class ConstantPool {
 
     public ConstantPool(DataInputStream in) throws IOException {
         pool = new IConstant[in.readUnsignedShort()];
-        pool[0] = new ConstantNullPtr();
+        pool[0] = new NullConstant();
         for (int i = 1; i < pool.length; i++) {
             pool[i] = IConstant.read(in);
-            if (pool[i] instanceof ConstantDouble || pool[i] instanceof ConstantLong) {
-                pool[i++] = new ConstantNullPtr();
+            if (pool[i] instanceof DoubleConstant || pool[i] instanceof LongConstant) {
+                pool[++i] = new NullConstant();
             }
         }
         builtPool = new Object[pool.length];

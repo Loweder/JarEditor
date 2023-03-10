@@ -1,6 +1,6 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
+import me.lowedermine.jareditor.jar.descriptors.MethodDescriptor;
 
 public class BootstrapMethodInfo extends BootstrapMemberInfo {
     public BootstrapMethodInfo(int index, MemberInfo inInfo) {
@@ -9,6 +9,6 @@ public class BootstrapMethodInfo extends BootstrapMemberInfo {
 
     @Override
     public MethodInfo getInfo() {
-        return new MethodInfo(name, (DescriptorMethod) desc);
+        return new MethodInfo(name, (MethodDescriptor) desc);
     }
 }

@@ -1,5 +1,7 @@
 package me.lowedermine.jareditor.jar.signatures;
 
+import me.lowedermine.jareditor.jar.descriptors.PrimitiveDescriptorType;
+
 public interface ISignatureJavaTypePart extends ISignatureReturnPart {
     static int parseLength(String string) {
         switch (string.charAt(0)) {
@@ -20,21 +22,21 @@ public interface ISignatureJavaTypePart extends ISignatureReturnPart {
     static ISignatureJavaTypePart parse(String string) {
         switch (string.charAt(0)) {
             case 'B':
-                return SignatureBaseType.BYTE;
+                return PrimitiveDescriptorType.BYTE;
             case 'C':
-                return SignatureBaseType.CHAR;
+                return PrimitiveDescriptorType.CHAR;
             case 'D':
-                return SignatureBaseType.DOUBLE;
+                return PrimitiveDescriptorType.DOUBLE;
             case 'F':
-                return SignatureBaseType.FLOAT;
+                return PrimitiveDescriptorType.FLOAT;
             case 'I':
-                return SignatureBaseType.INT;
+                return PrimitiveDescriptorType.INT;
             case 'J':
-                return SignatureBaseType.LONG;
+                return PrimitiveDescriptorType.LONG;
             case 'S':
-                return SignatureBaseType.SHORT;
+                return PrimitiveDescriptorType.SHORT;
             case 'Z':
-                return SignatureBaseType.BOOLEAN;
+                return PrimitiveDescriptorType.BOOLEAN;
             default:
                 return ISignatureReferencePart.parse(string);
         }

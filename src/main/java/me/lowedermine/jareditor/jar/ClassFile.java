@@ -1,14 +1,14 @@
 package me.lowedermine.jareditor.jar;
 
 import me.lowedermine.jareditor.jar.annotations.Annotation;
-import me.lowedermine.jareditor.jar.annotations.AnnotationType;
+import me.lowedermine.jareditor.jar.annotations.TypeAnnotation;
 import me.lowedermine.jareditor.jar.code.instruction.Instruction;
 import me.lowedermine.jareditor.jar.constants.ConstantPool;
 import me.lowedermine.jareditor.jar.constants.ConstantPoolBuilder;
-import me.lowedermine.jareditor.jar.descriptors.DescriptorField;
+import me.lowedermine.jareditor.jar.descriptors.FieldDescriptor;
 import me.lowedermine.jareditor.jar.infos.*;
-import me.lowedermine.jareditor.jar.signatures.SignatureClass;
-import me.lowedermine.jareditor.utils.MyCloneable;
+import me.lowedermine.jareditor.jar.signatures.ClassSignature;
+import me.lowedermine.jareditor.utils.IMyCloneable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -18,11 +18,20 @@ import java.util.List;
 
 public class ClassFile {
     public ClassInfoSegment info = new ClassInfoSegment();
-    public MainDataSegment main = null;
-    public NestedClassInfoSegment nested = null;
-    public ModuleSegment module = null;
-    public AnnotationSegment annotation = null;
-    public DebugSegment debug = null;
+    public MainDataSegment main = new MainDataSegment();
+    public NestedClassInfoSegment nested = new NestedClassInfoSegment();
+    public ModuleSegment module = new ModuleSegment();
+    public AnnotationSegment annotation = new AnnotationSegment();
+    public DebugSegment debug = new DebugSegment();
+
+    public ClassFile(ClassFile copy) {
+        info = copy.info;
+        main = copy.main;
+        nested = copy.nested;
+        module = copy.module;
+        annotation = copy.annotation;
+        debug = copy.debug;
+    }
 
     public ClassFile(InputStream rawIn) throws IOException {
         DataInputStream in = new DataInputStream(rawIn);
@@ -33,24 +42,15 @@ public class ClassFile {
         info.accessFlags = AccessFlags.fromCode(in.readUnsignedShort(), AccessFlags.Type.CLASS);
         info.name = (ClassInfo) cp.ro(in.readUnsignedShort());
         info.superName = (ClassInfo) cp.ro(in.readUnsignedShort());
-        int interfacesCount = in.readUnsignedShort();
-        if (interfacesCount > 0) {
-            info.interfaces = new ClassInfo[interfacesCount];
-            for (int i = 0; i < info.interfaces.length; i++)
-                info.interfaces[i] = (ClassInfo) cp.ro(in.readUnsignedShort());
-        }
-        int fieldCount = in.readUnsignedShort();
-        if (fieldCount > 0) {
-            main = main == null ? new MainDataSegment() : main;
-            main.fields = new Field[fieldCount];
-            for (int i = 0; i < main.fields.length; i++) main.fields[i] = new Field(in, cp);
-        }
-        int methodCount = in.readUnsignedShort();
-        if (methodCount > 0) {
-            main = main == null ? new MainDataSegment() : main;
-            main.methods = new Method[methodCount];
-            for (int i = 0; i < main.methods.length; i++) main.methods[i] = new Method(in, cp);
-        }
+        info.interfaces = new ClassInfo[in.readUnsignedShort()];
+        for (int i = 0; i < info.interfaces.length; i++)
+            info.interfaces[i] = (ClassInfo) cp.ro(in.readUnsignedShort());
+        main.fields = new Field[in.readUnsignedShort()];
+        for (int i = 0; i < main.fields.length; i++)
+            main.fields[i] = new Field(in, cp);
+        main.methods = new Method[in.readUnsignedShort()];
+        for (int i = 0; i < main.methods.length; i++)
+            main.methods[i] = new Method(in, cp);
         BootstrapMethod[] bootstrapMethods = null;
         int attributesCount = in.readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
@@ -58,15 +58,16 @@ public class ClassFile {
             if (obj instanceof BootstrapMethod[])
                 bootstrapMethods = (BootstrapMethod[]) obj;
         }
+        recalculateSegments();
         if (main != null)
             if (bootstrapMethods != null && main.methods != null)
                 for (Method method : main.methods)
                     if (method.code != null)
                         for (int i = 0; i < method.code.instructions.length; i++)
-                            if (method.code.instructions[i] instanceof Instruction.RawInvokeDynamic)
-                                method.code.instructions[i] = new Instruction.InvokeDynamic((Instruction.RawInvokeDynamic) method.code.instructions[i], bootstrapMethods);
-                            else if (method.code.instructions[i] instanceof Instruction.RawLoadConst)
-                                method.code.instructions[i] = new Instruction.LoadConst((Instruction.RawLoadConst) method.code.instructions[i], bootstrapMethods);
+                            if (method.code.instructions[i] instanceof Instruction.InvokeDynamic.RawInvokeDynamic)
+                                method.code.instructions[i] = new Instruction.InvokeDynamic((Instruction.InvokeDynamic.RawInvokeDynamic) method.code.instructions[i], bootstrapMethods);
+                            else if (method.code.instructions[i] instanceof Instruction.LoadConst.RawLoadConst)
+                                method.code.instructions[i] = new Instruction.LoadConst((Instruction.LoadConst.RawLoadConst) method.code.instructions[i], bootstrapMethods);
     }
 
     private Object parseAttribute(DataInputStream in, ConstantPool cp) throws IOException {
@@ -80,81 +81,66 @@ public class ClassFile {
                 info.deprecated = true;
                 break;
             case "Signature":
-                info.signature = new SignatureClass((String) cp.ro(in.readUnsignedShort()));
+                info.signature = new ClassSignature((String) cp.ro(in.readUnsignedShort()));
                 break;
             case "BootstrapMethods":
                 BootstrapMethod[] bootstrapMethods = new BootstrapMethod[in.readUnsignedShort()];
                 for (int i = 0; i < bootstrapMethods.length; i++) bootstrapMethods[i] = new BootstrapMethod(in, cp);
                 return bootstrapMethods;
             case "Record":
-                main = main == null ? new MainDataSegment() : main;
                 main.recordComponents = new RecordComponent[in.readUnsignedShort()];
                 for (int i = 0; i < main.recordComponents.length; i++) main.recordComponents[i] = new RecordComponent(in, cp);
                 break;
             case "InnerClasses":
-                nested = nested == null ? new NestedClassInfoSegment() : nested;
                 nested.innerClasses = new InnerClass[in.readUnsignedShort()];
                 for (int i = 0; i < nested.innerClasses.length; i++) nested.innerClasses[i] = new InnerClass(in, cp);
                 break;
             case "EnclosingMethod":
-                nested = nested == null ? new NestedClassInfoSegment() : nested;
                 ClassInfo clazz = (ClassInfo) cp.ro(in.readUnsignedShort());
                 MethodInfo desc = (MethodInfo) cp.ro(in.readUnsignedShort());
                 nested.enclosingMethod = new ClassMethodInfo(clazz, desc, false);
                 break;
             case "NestHost":
-                nested = nested == null ? new NestedClassInfoSegment() : nested;
                 nested.nestHost = (ClassInfo) cp.ro(in.readUnsignedShort());
                 break;
             case "NestMembers":
-                nested = nested == null ? new NestedClassInfoSegment() : nested;
                 nested.nestMembers = new ClassInfo[in.readUnsignedShort()];
                 for (int i = 0; i < nested.nestMembers.length; i++) nested.nestMembers[i] = (ClassInfo) cp.ro(in.readUnsignedShort());
                 break;
             case "PermittedSubclasses":
-                nested = nested == null ? new NestedClassInfoSegment() : nested;
                 nested.permittedSubclasses = new ClassInfo[in.readUnsignedShort()];
                 for (int i = 0; i < nested.permittedSubclasses.length; i++) nested.permittedSubclasses[i] = (ClassInfo) cp.ro(in.readUnsignedShort());
                 break;
             case "Module":
-                module = module == null ? new ModuleSegment() : module;
                 module.module = new Module(in, cp);
                 break;
             case "ModuleMainClass":
-                module = module == null ? new ModuleSegment() : module;
                 module.mainClass = (ClassInfo) cp.ro(in.readUnsignedShort());
                 break;
             case "ModulePackages":
-                module = module == null ? new ModuleSegment() : module;
                 module.packages = new PackageInfo[in.readUnsignedShort()];
                 for (int i = 0; i < module.packages.length; i++) module.packages[i] = (PackageInfo) cp.ro(in.readUnsignedShort());
                 break;
             case "RuntimeVisibleAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
                 annotation.visible = new Annotation[in.readUnsignedShort()];
                 for (int i = 0; i < annotation.visible.length; i++) annotation.visible[i] = new Annotation(in, cp);
                 break;
             case "RuntimeInvisibleAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
                 annotation.invisible = new Annotation[in.readUnsignedShort()];
                 for (int i = 0; i < annotation.invisible.length; i++) annotation.invisible[i] = new Annotation(in, cp);
                 break;
             case "RuntimeVisibleTypeAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
-                annotation.visibleType = new AnnotationType[in.readUnsignedShort()];
-                for (int i = 0; i < annotation.visibleType.length; i++) annotation.visibleType[i] = new AnnotationType(in, cp);
+                annotation.visibleType = new TypeAnnotation[in.readUnsignedShort()];
+                for (int i = 0; i < annotation.visibleType.length; i++) annotation.visibleType[i] = new TypeAnnotation(in, cp);
                 break;
             case "RuntimeInvisibleTypeAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
-                annotation.invisibleType = new AnnotationType[in.readUnsignedShort()];
-                for (int i = 0; i < annotation.invisibleType.length; i++) annotation.invisibleType[i] = new AnnotationType(in, cp);
+                annotation.invisibleType = new TypeAnnotation[in.readUnsignedShort()];
+                for (int i = 0; i < annotation.invisibleType.length; i++) annotation.invisibleType[i] = new TypeAnnotation(in, cp);
                 break;
             case "SourceFile":
-                debug = debug == null ? new DebugSegment() : debug;
                 debug.sourceFile = (String) cp.ro(in.readUnsignedShort());
                 break;
             case "SourceDebugExtension":
-                debug = debug == null ? new DebugSegment() : debug;
                 byte[] bytes = new byte[in.readUnsignedShort()];
                 if (in.read(bytes) != bytes.length) throw new IOException("Buffer is not large enough");
                 debug.sourceDebugExtension = new String(bytes, StandardCharsets.UTF_8);
@@ -238,11 +224,11 @@ public class ClassFile {
             }
             if (annotation.visibleType != null) {
                 cp.add("RuntimeVisibleTypeAnnotations");
-                for (AnnotationType annotation1 : annotation.visibleType) annotation1.toPool(cp);
+                for (TypeAnnotation annotation1 : annotation.visibleType) annotation1.toPool(cp);
             }
             if (annotation.invisibleType != null) {
                 cp.add("RuntimeInvisibleTypeAnnotations");
-                for (AnnotationType annotation1 : annotation.invisibleType) annotation1.toPool(cp);
+                for (TypeAnnotation annotation1 : annotation.invisibleType) annotation1.toPool(cp);
             }
         }
         if (debug != null) {
@@ -473,18 +459,18 @@ public class ClassFile {
             if (annotation.visibleType != null) {
                 out.writeShort(cp.indexOf("RuntimeVisibleTypeAnnotations"));
                 int length = 2;
-                for (AnnotationType annotation1 : annotation.visibleType) length += annotation1.toLength();
+                for (TypeAnnotation annotation1 : annotation.visibleType) length += annotation1.toLength();
                 out.writeInt(length);
                 out.writeShort(annotation.visibleType.length);
-                for (AnnotationType annotation1 : annotation.visibleType) annotation1.toStream(out, cp);
+                for (TypeAnnotation annotation1 : annotation.visibleType) annotation1.toStream(out, cp);
             }
             if (annotation.invisibleType != null) {
                 out.writeShort(cp.indexOf("RuntimeInvisibleTypeAnnotations"));
                 int length = 2;
-                for (AnnotationType annotation1 : annotation.invisibleType) length += annotation1.toLength();
+                for (TypeAnnotation annotation1 : annotation.invisibleType) length += annotation1.toLength();
                 out.writeInt(length);
                 out.writeShort(annotation.invisibleType.length);
-                for (AnnotationType annotation1 : annotation.invisibleType) annotation1.toStream(out, cp);
+                for (TypeAnnotation annotation1 : annotation.invisibleType) annotation1.toStream(out, cp);
             }
         }
         if (debug != null) {
@@ -501,6 +487,51 @@ public class ClassFile {
         }
     }
 
+    public void recalculateSegments() {
+        if (main != null) {
+            if (main.fields != null && main.fields.length == 0)
+                main.fields = null;
+            if (main.methods != null && main.methods.length == 0)
+                main.methods = null;
+            if (main.recordComponents != null && main.recordComponents.length == 0)
+                main.recordComponents = null;
+            if (main.fields == null && main.methods == null && main.recordComponents == null)
+                main = null;
+        }
+        if (nested != null) {
+            if (nested.innerClasses != null && nested.innerClasses.length == 0)
+                nested.innerClasses = null;
+            if (nested.nestMembers != null && nested.nestMembers.length == 0)
+                nested.nestMembers = null;
+            if (nested.permittedSubclasses != null && nested.permittedSubclasses.length == 0)
+                nested.permittedSubclasses = null;
+            if (nested.enclosingMethod == null && nested.innerClasses == null && nested.nestHost == null && nested.nestMembers == null && nested.permittedSubclasses == null)
+                nested = null;
+        }
+        if (module != null) {
+            if (module.packages != null && module.packages.length == 0)
+                module.packages = null;
+            if (module.module == null && module.mainClass == null && module.packages == null)
+                module = null;
+        }
+        if (annotation != null) {
+            if (annotation.visible != null && annotation.visible.length == 0)
+                annotation.visible = null;
+            if (annotation.invisible != null && annotation.invisible.length == 0)
+                annotation.invisible = null;
+            if (annotation.visibleType != null && annotation.visibleType.length == 0)
+                annotation.visibleType = null;
+            if (annotation.invisibleType != null && annotation.invisibleType.length == 0)
+                annotation.invisibleType = null;
+            if (annotation.visible == null && annotation.invisible == null && annotation.visibleType == null && annotation.invisibleType == null)
+                annotation = null;
+        }
+        if (debug != null) {
+            if (debug.sourceFile == null && debug.sourceDebugExtension == null)
+                debug = null;
+        }
+    }
+
     public static class ClassInfoSegment {
         public int minorVersion;
         public int majorVersion;
@@ -508,7 +539,7 @@ public class ClassFile {
         public ClassInfo name;
         public ClassInfo superName;
         public ClassInfo[] interfaces = null;
-        public SignatureClass signature = null;
+        public ClassSignature signature = null;
         public boolean deprecated = false;
         public boolean synthetic = false;
     }
@@ -536,8 +567,8 @@ public class ClassFile {
     public static class AnnotationSegment {
         public Annotation[] visible = null;
         public Annotation[] invisible = null;
-        public AnnotationType[] visibleType = null;
-        public AnnotationType[] invisibleType = null;
+        public TypeAnnotation[] visibleType = null;
+        public TypeAnnotation[] invisibleType = null;
     }
 
     public static class DebugSegment {
@@ -595,8 +626,8 @@ public class ClassFile {
             BootstrapMethod clone = (BootstrapMethod) super.clone();
             clone.args = args.clone();
             for (int i = 0; i < args.length; i++) {
-                if (args[i] instanceof MyCloneable)
-                    clone.args[i] = ((MyCloneable) args[i]).clone();
+                if (args[i] instanceof IMyCloneable)
+                    clone.args[i] = ((IMyCloneable) args[i]).clone();
                 else
                     clone.args[i] = args[i];
             }
@@ -807,7 +838,7 @@ public class ClassFile {
         public RecordComponent(DataInputStream in, ConstantPool cp) throws IOException {
             String name = (String) cp.ro(in.readUnsignedShort());
             String desc = (String) cp.ro(in.readUnsignedShort());
-            info.info = new FieldInfo(name, new DescriptorField(desc));
+            info.info = new FieldInfo(name, new FieldDescriptor(desc));
             int attributeLength = in.readUnsignedShort();
             for (int i = 0; i < attributeLength; i++) parseAttribute(in, cp);
         }
@@ -828,11 +859,11 @@ public class ClassFile {
                 }
                 if (annotation.visibleType != null) {
                     cp.add("RuntimeVisibleTypeAnnotations");
-                    for (AnnotationType annotation1 : annotation.visibleType) annotation1.toPool(cp);
+                    for (TypeAnnotation annotation1 : annotation.visibleType) annotation1.toPool(cp);
                 }
                 if (annotation.invisibleType != null) {
                     cp.add("RuntimeInvisibleTypeAnnotations");
-                    for (AnnotationType annotation1 : annotation.invisibleType) annotation1.toPool(cp);
+                    for (TypeAnnotation annotation1 : annotation.invisibleType) annotation1.toPool(cp);
                 }
             }
         }
@@ -876,18 +907,18 @@ public class ClassFile {
                 if (annotation.visibleType != null) {
                     out.writeShort(cp.indexOf("RuntimeVisibleTypeAnnotations"));
                     int length = 2;
-                    for (AnnotationType annotation1 : annotation.visibleType) length += annotation1.toLength();
+                    for (TypeAnnotation annotation1 : annotation.visibleType) length += annotation1.toLength();
                     out.writeInt(length);
                     out.writeShort(annotation.visibleType.length);
-                    for (AnnotationType annotation1 : annotation.visibleType) annotation1.toStream(out, cp);
+                    for (TypeAnnotation annotation1 : annotation.visibleType) annotation1.toStream(out, cp);
                 }
                 if (annotation.invisibleType != null) {
                     out.writeShort(cp.indexOf("RuntimeInvisibleTypeAnnotations"));
                     int length = 2;
-                    for (AnnotationType annotation1 : annotation.invisibleType) length += annotation1.toLength();
+                    for (TypeAnnotation annotation1 : annotation.invisibleType) length += annotation1.toLength();
                     out.writeInt(length);
                     out.writeShort(annotation.invisibleType.length);
-                    for (AnnotationType annotation1 : annotation.invisibleType) annotation1.toStream(out, cp);
+                    for (TypeAnnotation annotation1 : annotation.invisibleType) annotation1.toStream(out, cp);
                 }
             }
         }
@@ -905,11 +936,11 @@ public class ClassFile {
                 }
                 if (annotation.visibleType != null) {
                     length += 6;
-                    for (AnnotationType annotation1 : annotation.visibleType) length += annotation1.toLength();
+                    for (TypeAnnotation annotation1 : annotation.visibleType) length += annotation1.toLength();
                 }
                 if (annotation.invisibleType != null) {
                     length += 6;
-                    for (AnnotationType annotation1 : annotation.invisibleType) length += annotation1.toLength();
+                    for (TypeAnnotation annotation1 : annotation.invisibleType) length += annotation1.toLength();
                 }
             }
             return length;
@@ -920,7 +951,7 @@ public class ClassFile {
             in.readInt();
             switch (name) {
                 case "Signature":
-                    info.signature = new SignatureClass((String) cp.ro(in.readUnsignedShort()));
+                    info.signature = new ClassSignature((String) cp.ro(in.readUnsignedShort()));
                     break;
                 case "RuntimeVisibleAnnotations":
                     annotation = annotation == null ? new AnnotationSegment() : annotation;
@@ -935,22 +966,22 @@ public class ClassFile {
                     break;
                 case "RuntimeVisibleTypeAnnotations":
                     annotation = annotation == null ? new AnnotationSegment() : annotation;
-                    annotation.visibleType = new AnnotationType[in.readUnsignedShort()];
+                    annotation.visibleType = new TypeAnnotation[in.readUnsignedShort()];
                     for (int i = 0; i < annotation.visibleType.length; i++)
-                        annotation.visibleType[i] = new AnnotationType(in, cp);
+                        annotation.visibleType[i] = new TypeAnnotation(in, cp);
                     break;
                 case "RuntimeInvisibleTypeAnnotations":
                     annotation = annotation == null ? new AnnotationSegment() : annotation;
-                    annotation.invisibleType = new AnnotationType[in.readUnsignedShort()];
+                    annotation.invisibleType = new TypeAnnotation[in.readUnsignedShort()];
                     for (int i = 0; i < annotation.invisibleType.length; i++)
-                        annotation.invisibleType[i] = new AnnotationType(in, cp);
+                        annotation.invisibleType[i] = new TypeAnnotation(in, cp);
                     break;
             }
         }
 
         public static class RecordInfoSegment {
             public FieldInfo info;
-            public SignatureClass signature = null;
+            public ClassSignature signature = null;
         }
     }
 }

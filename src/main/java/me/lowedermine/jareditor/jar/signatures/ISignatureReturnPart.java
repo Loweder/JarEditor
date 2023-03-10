@@ -10,7 +10,7 @@ public interface ISignatureReturnPart {
 
     static ISignatureReturnPart parse(String string) {
         if (string.charAt(0) == 'V') {
-            return new SignatureVoidType();
+            return new VoidSignatureType();
         }
         return ISignatureJavaTypePart.parse(string);
     }

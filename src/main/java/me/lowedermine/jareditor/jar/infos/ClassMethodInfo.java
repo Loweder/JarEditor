@@ -1,6 +1,6 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
+import me.lowedermine.jareditor.jar.descriptors.MethodDescriptor;
 
 import java.util.Objects;
 
@@ -14,7 +14,7 @@ public class ClassMethodInfo extends ClassMemberInfo {
 
     @Override
     public MethodInfo getInfo() {
-        return new MethodInfo(name, (DescriptorMethod) desc);
+        return new MethodInfo(name, (MethodDescriptor) desc);
     }
 
     @Override

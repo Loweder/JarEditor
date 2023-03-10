@@ -10,7 +10,7 @@ public interface IDescriptorReturnPart {
 
     static IDescriptorReturnPart parse(String string) {
         if (string.charAt(0) == 'V') {
-            return new DescriptorVoidType();
+            return new VoidDescriptorType();
         }
         return IDescriptorFieldPart.parse(string);
     }

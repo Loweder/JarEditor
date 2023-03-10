@@ -1,19 +1,19 @@
 package me.lowedermine.jareditor.jar;
 
 import me.lowedermine.jareditor.jar.annotations.Annotation;
-import me.lowedermine.jareditor.jar.annotations.AnnotationType;
+import me.lowedermine.jareditor.jar.annotations.TypeAnnotation;
 import me.lowedermine.jareditor.jar.annotations.ElementValuePair;
 import me.lowedermine.jareditor.jar.code.instruction.Instruction;
 import me.lowedermine.jareditor.jar.code.stackmapframe.StackMapFrame;
 import me.lowedermine.jareditor.jar.constants.ConstantPool;
 import me.lowedermine.jareditor.jar.constants.ConstantPoolBuilder;
-import me.lowedermine.jareditor.jar.descriptors.DescriptorField;
-import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
+import me.lowedermine.jareditor.jar.descriptors.FieldDescriptor;
+import me.lowedermine.jareditor.jar.descriptors.MethodDescriptor;
 import me.lowedermine.jareditor.jar.descriptors.IDescriptor;
 import me.lowedermine.jareditor.jar.infos.ClassInfo;
 import me.lowedermine.jareditor.jar.infos.MethodInfo;
-import me.lowedermine.jareditor.jar.signatures.SignatureClass;
-import me.lowedermine.jareditor.jar.signatures.SignatureMethod;
+import me.lowedermine.jareditor.jar.signatures.ClassSignature;
+import me.lowedermine.jareditor.jar.signatures.MethodSignature;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -26,15 +26,22 @@ import java.util.List;
 public class Method {
     public MethodInfoSegment info = new MethodInfoSegment();
     public CodeSegment code = null;
-    public AnnotationSegment annotation = null;
+    public AnnotationSegment annotation = new AnnotationSegment();
+
+    public Method(Method copy) {
+        info = copy.info;
+        code = copy.code;
+        annotation = copy.annotation;
+    }
 
     public Method(DataInputStream in, ConstantPool cp) throws IOException {
         info.accessFlags = AccessFlags.fromCode(in.readUnsignedShort(), AccessFlags.Type.METHOD);
         String name = (String) cp.ro(in.readUnsignedShort());
         String desc = (String) cp.ro(in.readUnsignedShort());
-        info.info = new MethodInfo(name, (DescriptorMethod) IDescriptor.parse(desc));
+        info.info = new MethodInfo(name, (MethodDescriptor) IDescriptor.parse(desc));
         int attributeLength = in.readUnsignedShort();
         for (int i = 0; i < attributeLength; i++) parseAttribute(in, cp);
+        recalculateSegments();
     }
     private void parseAttribute(DataInputStream in, ConstantPool cp) throws IOException {
         String name = (String) cp.ro(in.readUnsignedShort());
@@ -47,7 +54,7 @@ public class Method {
                 info.deprecated = true;
                 break;
             case "Signature":
-                info.signature = new SignatureMethod((String) cp.ro(in.readUnsignedShort()));
+                info.signature = new MethodSignature((String) cp.ro(in.readUnsignedShort()));
                 break;
             case "AnnotationDefault":
                 info.annotationDefault = new ElementValuePair.ElementValue(in, cp);
@@ -88,11 +95,8 @@ public class Method {
                 }
                 code.instructions = listInstructions.toArray(new Instruction[0]);
                 for (int i = 0; i < code.instructions.length; i++) {
-                    if (code.instructions[i] instanceof Instruction.Goto) {
-                        Instruction.Goto instruction = (Instruction.Goto) code.instructions[i];
-                        instruction.offset = indexMap[0][indexMap[1][i] + instruction.offset];
-                    } else if (code.instructions[i] instanceof Instruction.If) {
-                        Instruction.If instruction = (Instruction.If) code.instructions[i];
+                    if (code.instructions[i] instanceof Instruction.Jump) {
+                        Instruction.Jump instruction = (Instruction.Jump) code.instructions[i];
                         instruction.offset = indexMap[0][indexMap[1][i] + instruction.offset];
                     } else if (code.instructions[i] instanceof Instruction.TableSwitch) {
                         Instruction.TableSwitch instruction = (Instruction.TableSwitch) code.instructions[i];
@@ -113,7 +117,6 @@ public class Method {
                 for (int i = 0; i < attributeLength; i++) parseCodeAttribute(in, cp, indexMap);
                 break;
             case "RuntimeVisibleParameterAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
                 annotation.visibleParameter = new Annotation[in.readUnsignedShort()][];
                 for (int i = 0; i < annotation.visibleParameter.length; i++) {
                     annotation.visibleParameter[i] = new Annotation[in.readUnsignedShort()];
@@ -123,7 +126,6 @@ public class Method {
                 }
                 break;
             case "RuntimeInvisibleParameterAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
                 annotation.invisibleParameter = new Annotation[in.readUnsignedShort()][];
                 for (int i = 0; i < annotation.invisibleParameter.length; i++) {
                     annotation.invisibleParameter[i] = new Annotation[in.readUnsignedShort()];
@@ -133,24 +135,20 @@ public class Method {
                 }
                 break;
             case "RuntimeVisibleAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
                 annotation.visible = new Annotation[in.readUnsignedShort()];
                 for (int i = 0; i < annotation.visible.length; i++) annotation.visible[i] = new Annotation(in, cp);
                 break;
             case "RuntimeInvisibleAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
                 annotation.invisible = new Annotation[in.readUnsignedShort()];
                 for (int i = 0; i < annotation.invisible.length; i++) annotation.invisible[i] = new Annotation(in, cp);
                 break;
             case "RuntimeVisibleTypeAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
-                annotation.visibleType = new AnnotationType[in.readUnsignedShort()];
-                for (int i = 0; i < annotation.visibleType.length; i++) annotation.visibleType[i] = new AnnotationType(in, cp);
+                annotation.visibleType = new TypeAnnotation[in.readUnsignedShort()];
+                for (int i = 0; i < annotation.visibleType.length; i++) annotation.visibleType[i] = new TypeAnnotation(in, cp);
                 break;
             case "RuntimeInvisibleTypeAnnotations":
-                annotation = annotation == null ? new AnnotationSegment() : annotation;
-                annotation.invisibleType = new AnnotationType[in.readUnsignedShort()];
-                for (int i = 0; i < annotation.invisibleType.length; i++) annotation.invisibleType[i] = new AnnotationType(in, cp);
+                annotation.invisibleType = new TypeAnnotation[in.readUnsignedShort()];
+                for (int i = 0; i < annotation.invisibleType.length; i++) annotation.invisibleType[i] = new TypeAnnotation(in, cp);
                 break;
         }
     }
@@ -181,13 +179,13 @@ public class Method {
                 break;
             case "RuntimeVisibleTypeAnnotations":
                 code.annotation = code.annotation == null ? new CodeSegment.AnnotationSegment() : code.annotation;
-                code.annotation.visible = new AnnotationType[in.readUnsignedShort()];
-                for (int i = 0; i < code.annotation.visible.length; i++) code.annotation.visible[i] = new AnnotationType(in, cp);
+                code.annotation.visible = new TypeAnnotation[in.readUnsignedShort()];
+                for (int i = 0; i < code.annotation.visible.length; i++) code.annotation.visible[i] = new TypeAnnotation(in, cp);
                 break;
             case "RuntimeInvisibleTypeAnnotations":
                 code.annotation = code.annotation == null ? new CodeSegment.AnnotationSegment() : code.annotation;
-                code.annotation.invisible = new AnnotationType[in.readUnsignedShort()];
-                for (int i = 0; i < code.annotation.invisible.length; i++) code.annotation.invisible[i] = new AnnotationType(in, cp);
+                code.annotation.invisible = new TypeAnnotation[in.readUnsignedShort()];
+                for (int i = 0; i < code.annotation.invisible.length; i++) code.annotation.invisible[i] = new TypeAnnotation(in, cp);
                 break;
         }
     }
@@ -228,8 +226,10 @@ public class Method {
                 if (instruction instanceof Instruction.LoadConst)
                     ((Instruction.LoadConst) instruction).toPool(cp, methods);
             }
-            for (ExceptionHandler handler : code.exceptionHandlers) {
-                handler.toPool(cp);
+            if (code.exceptionHandlers != null) {
+                for (ExceptionHandler handler : code.exceptionHandlers) {
+                    handler.toPool(cp);
+                }
             }
             if (code.localVariableTable != null) {
                 cp.add("LocalVariableTable");
@@ -249,11 +249,11 @@ public class Method {
             if (code.annotation != null) {
                 if (code.annotation.visible != null) {
                     cp.add("RuntimeVisibleTypeAnnotations");
-                    for (AnnotationType annotation1 : code.annotation.visible) annotation1.toPool(cp);
+                    for (TypeAnnotation annotation1 : code.annotation.visible) annotation1.toPool(cp);
                 }
                 if (code.annotation.invisible != null) {
                     cp.add("RuntimeInvisibleTypeAnnotations");
-                    for (AnnotationType annotation1 : code.annotation.invisible) annotation1.toPool(cp);
+                    for (TypeAnnotation annotation1 : code.annotation.invisible) annotation1.toPool(cp);
                 }
             }
         }
@@ -276,11 +276,11 @@ public class Method {
             }
             if (annotation.visibleType != null) {
                 cp.add("RuntimeVisibleTypeAnnotations");
-                for (AnnotationType annotation1 : annotation.visibleType) annotation1.toPool(cp);
+                for (TypeAnnotation annotation1 : annotation.visibleType) annotation1.toPool(cp);
             }
             if (annotation.invisibleType != null) {
                 cp.add("RuntimeInvisibleTypeAnnotations");
-                for (AnnotationType annotation1 : annotation.invisibleType) annotation1.toPool(cp);
+                for (TypeAnnotation annotation1 : annotation.invisibleType) annotation1.toPool(cp);
             }
         }
     }
@@ -407,18 +407,18 @@ public class Method {
             if (annotation.visibleType != null) {
                 out.writeShort(cp.indexOf("RuntimeVisibleTypeAnnotations"));
                 int length = 2;
-                for (AnnotationType annotation1 : annotation.visibleType) length += annotation1.toLength();
+                for (TypeAnnotation annotation1 : annotation.visibleType) length += annotation1.toLength();
                 out.writeInt(length);
                 out.writeShort(annotation.visibleType.length);
-                for (AnnotationType annotation1 : annotation.visibleType) annotation1.toStream(out, cp);
+                for (TypeAnnotation annotation1 : annotation.visibleType) annotation1.toStream(out, cp);
             }
             if (annotation.invisibleType != null) {
                 out.writeShort(cp.indexOf("RuntimeInvisibleTypeAnnotations"));
                 int length = 2;
-                for (AnnotationType annotation1 : annotation.invisibleType) length += annotation1.toLength();
+                for (TypeAnnotation annotation1 : annotation.invisibleType) length += annotation1.toLength();
                 out.writeInt(length);
                 out.writeShort(annotation.invisibleType.length);
-                for (AnnotationType annotation1 : annotation.invisibleType) annotation1.toStream(out, cp);
+                for (TypeAnnotation annotation1 : annotation.invisibleType) annotation1.toStream(out, cp);
             }
         }
     }
@@ -441,11 +441,8 @@ public class Method {
             indexMap[1][i] = indexList.get(i);
         }
         for (int i = 0; i < code.instructions.length; i++) {
-            if (code.instructions[i] instanceof Instruction.Goto) {
-                Instruction.Goto instruction = (Instruction.Goto) code.instructions[i];
-                instruction.offset = indexMap[1][instruction.offset] - indexMap[1][i];
-            } else if (code.instructions[i] instanceof Instruction.If) {
-                Instruction.If instruction = (Instruction.If) code.instructions[i];
+            if (code.instructions[i] instanceof Instruction.Jump) {
+                Instruction.Jump instruction = (Instruction.Jump) code.instructions[i];
                 instruction.offset = indexMap[1][instruction.offset] - indexMap[1][i];
             } else if (code.instructions[i] instanceof Instruction.TableSwitch) {
                 Instruction.TableSwitch instruction = (Instruction.TableSwitch) code.instructions[i];
@@ -461,8 +458,13 @@ public class Method {
         }
         out.writeInt(length);
         for (Instruction instruction : code.instructions) instruction.toStream(out, cp);
-        out.writeShort(code.exceptionHandlers.length);
-        for (ExceptionHandler exceptionHandler : code.exceptionHandlers) exceptionHandler.toStream(out, cp, indexMap[1]);
+        if (code.exceptionHandlers != null) {
+            out.writeShort(code.exceptionHandlers.length);
+            for (ExceptionHandler exceptionHandler : code.exceptionHandlers)
+                exceptionHandler.toStream(out, cp, indexMap[1]);
+        } else {
+            out.writeShort(0);
+        }
         int attributes = 0;
         {
             if (code.lineNumberTable != null) {
@@ -523,24 +525,24 @@ public class Method {
             if (code.annotation.visible != null) {
                 out.writeShort(cp.indexOf("RuntimeVisibleTypeAnnotations"));
                 int subLength = 2;
-                for (AnnotationType annotation1 : code.annotation.visible) subLength += annotation1.toLength();
+                for (TypeAnnotation annotation1 : code.annotation.visible) subLength += annotation1.toLength();
                 out.writeInt(subLength);
                 out.writeShort(code.annotation.visible.length);
-                for (AnnotationType annotation1 : code.annotation.visible) annotation1.toStream(out, cp);
+                for (TypeAnnotation annotation1 : code.annotation.visible) annotation1.toStream(out, cp);
             }
             if (code.annotation.invisible != null) {
                 out.writeShort(cp.indexOf("RuntimeInvisibleTypeAnnotations"));
                 int subLength = 2;
-                for (AnnotationType annotation1 : code.annotation.invisible) subLength += annotation1.toLength();
+                for (TypeAnnotation annotation1 : code.annotation.invisible) subLength += annotation1.toLength();
                 out.writeInt(subLength);
                 out.writeShort(code.annotation.invisible.length);
-                for (AnnotationType annotation1 : code.annotation.invisible) annotation1.toStream(out, cp);
+                for (TypeAnnotation annotation1 : code.annotation.invisible) annotation1.toStream(out, cp);
             }
         }
     }
 
     public int codeToLength(ConstantPool cp) {
-        int length = 12 + (code.exceptionHandlers.length * 8);
+        int length = 12 + (code.exceptionHandlers == null ? 0 : code.exceptionHandlers.length * 8);
         for (Instruction instruction : code.instructions) {
             length += instruction.toLength(cp);
         }
@@ -562,21 +564,60 @@ public class Method {
         if (code.annotation != null) {
             if (code.annotation.visible != null) {
                 length += 8;
-                for (AnnotationType annotation1 : code.annotation.visible) length += annotation1.toLength();
+                for (TypeAnnotation annotation1 : code.annotation.visible) length += annotation1.toLength();
             }
             if (code.annotation.invisible != null) {
                 length += 8;
-                for (AnnotationType annotation1 : code.annotation.invisible) length += annotation1.toLength();
+                for (TypeAnnotation annotation1 : code.annotation.invisible) length += annotation1.toLength();
             }
         }
         return length;
+    }
+
+    public void recalculateSegments() {
+        if (code != null) {
+            if (code.exceptionHandlers != null && code.exceptionHandlers.length == 0)
+                code.exceptionHandlers = null;
+            if (code.stackMapTable != null && code.stackMapTable.length == 0)
+                code.stackMapTable = null;
+            if (code.lineNumberTable != null && code.lineNumberTable.length == 0)
+                code.lineNumberTable = null;
+            if (code.localVariableTable != null && code.localVariableTable.length == 0)
+                code.localVariableTable = null;
+            if (code.localVariableTypeTable != null && code.localVariableTypeTable.length == 0)
+                code.localVariableTypeTable = null;
+            if (code.annotation != null) {
+                if (code.annotation.visible != null && code.annotation.visible.length == 0)
+                    code.annotation.visible = null;
+                if (code.annotation.invisible != null && code.annotation.invisible.length == 0)
+                    code.annotation.invisible = null;
+                if (code.annotation.visible == null && code.annotation.invisible == null)
+                    code.annotation = null;
+            }
+        }
+        if (annotation != null) {
+            if (annotation.visible != null && annotation.visible.length == 0)
+                annotation.visible = null;
+            if (annotation.invisible != null && annotation.invisible.length == 0)
+                annotation.invisible = null;
+            if (annotation.visibleParameter != null && annotation.visibleParameter.length == 0)
+                annotation.visibleParameter = null;
+            if (annotation.invisibleParameter != null && annotation.invisibleParameter.length == 0)
+                annotation.invisibleParameter = null;
+            if (annotation.visibleType != null && annotation.visibleType.length == 0)
+                annotation.visibleType = null;
+            if (annotation.invisibleType != null && annotation.invisibleType.length == 0)
+                annotation.invisibleType = null;
+            if (annotation.visible == null && annotation.invisible == null && annotation.visibleType == null && annotation.invisibleType == null)
+                annotation = null;
+        }
     }
 
     public static class MethodInfoSegment {
         public AccessFlags[] accessFlags;
         public MethodInfo info;
         public ElementValuePair.ElementValue annotationDefault = null;
-        public SignatureMethod signature = null;
+        public MethodSignature signature = null;
         public MethodParameter[] methodParameters = null;
         public ClassInfo[] exceptions = null;
         public boolean deprecated = false;
@@ -587,7 +628,7 @@ public class Method {
         public int maxLocals;
         public int maxStack;
         public Instruction[] instructions;
-        public ExceptionHandler[] exceptionHandlers;
+        public ExceptionHandler[] exceptionHandlers = null;
         public LocalVariable[] localVariableTable = null;
         public LocalVariableType[] localVariableTypeTable = null;
         public LineNumber[] lineNumberTable = null;
@@ -595,8 +636,8 @@ public class Method {
         public AnnotationSegment annotation = null;
 
         public static class AnnotationSegment {
-            public AnnotationType[] visible = null;
-            public AnnotationType[] invisible = null;
+            public TypeAnnotation[] visible = null;
+            public TypeAnnotation[] invisible = null;
         }
     }
 
@@ -605,8 +646,8 @@ public class Method {
         public Annotation[] invisible = null;
         public Annotation[][] visibleParameter = null;
         public Annotation[][] invisibleParameter = null;
-        public AnnotationType[] visibleType = null;
-        public AnnotationType[] invisibleType = null;
+        public TypeAnnotation[] visibleType = null;
+        public TypeAnnotation[] invisibleType = null;
     }
 
     public static class ExceptionHandler {
@@ -635,33 +676,33 @@ public class Method {
     }
 
     public static class LineNumber {
-        public int start;
+        public int offset;
         public int number;
 
         public LineNumber(DataInputStream in, int[] indexMap) throws IOException {
-            start = indexMap[in.readUnsignedShort()];
+            offset = indexMap[in.readUnsignedShort()];
             number = in.readUnsignedShort();
         }
 
         public void toStream(DataOutputStream out, int[] indexMap) throws IOException {
-            out.writeShort(indexMap[start]);
+            out.writeShort(indexMap[offset]);
             out.writeShort(number);
         }
     }
 
     public static class LocalVariable {
+        public int index;
         public int start;
         public int end;
         public String name;
-        public DescriptorField desc;
-        public int index;
+        public FieldDescriptor desc;
 
         public LocalVariable(DataInputStream in, ConstantPool cp, int[] indexMap) throws IOException {
             int start = in.readUnsignedShort();
             this.start = indexMap[start];
             end = indexMap[start + in.readUnsignedShort()];
             name = (String) cp.ro(in.readUnsignedShort());
-            desc = new DescriptorField((String) cp.ro(in.readUnsignedShort()));
+            desc = new FieldDescriptor((String) cp.ro(in.readUnsignedShort()));
             index = in.readUnsignedShort();
         }
 
@@ -680,18 +721,18 @@ public class Method {
     }
 
     public static class LocalVariableType {
+        public int index;
         public int start;
         public int end;
         public String name;
-        public SignatureClass signature;
-        public int index;
+        public ClassSignature signature;
 
         public LocalVariableType(DataInputStream in, ConstantPool cp, int[] indexMap) throws IOException {
             int start = in.readUnsignedShort();
             this.start = indexMap[start];
             end = indexMap[start + in.readUnsignedShort()];
             name = (String) cp.ro(in.readUnsignedShort());
-            signature = new SignatureClass((String) cp.ro(in.readUnsignedShort()));
+            signature = new ClassSignature((String) cp.ro(in.readUnsignedShort()));
             index = in.readUnsignedShort();
         }
 

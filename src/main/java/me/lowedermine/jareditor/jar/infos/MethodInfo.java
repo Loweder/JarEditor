@@ -1,12 +1,12 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
+import me.lowedermine.jareditor.jar.descriptors.MethodDescriptor;
 
 import java.util.Objects;
 
 public class MethodInfo extends MemberInfo {
 
-    public MethodInfo(String inName, DescriptorMethod inDesc) {
+    public MethodInfo(String inName, MethodDescriptor inDesc) {
         super(inName, inDesc);
     }
 

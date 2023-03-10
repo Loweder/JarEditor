@@ -1,11 +1,11 @@
 package me.lowedermine.jareditor.jar.infos;
 
 import me.lowedermine.jareditor.jar.descriptors.IDescriptor;
-import me.lowedermine.jareditor.utils.MyCloneable;
+import me.lowedermine.jareditor.utils.IMyCloneable;
 
 import java.util.Objects;
 
-public abstract class MemberInfo implements MyCloneable {
+public abstract class MemberInfo implements IMyCloneable {
     public String name;
     public IDescriptor desc;
 

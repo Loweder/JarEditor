@@ -1,12 +1,12 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.jar.descriptors.DescriptorField;
+import me.lowedermine.jareditor.jar.descriptors.FieldDescriptor;
 
 import java.util.Objects;
 
 public class FieldInfo extends MemberInfo {
 
-    public FieldInfo(String inName, DescriptorField inDesc) {
+    public FieldInfo(String inName, FieldDescriptor inDesc) {
         super(inName, inDesc);
     }
 

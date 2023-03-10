@@ -1,7 +1,7 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.jar.descriptors.DescriptorField;
-import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
+import me.lowedermine.jareditor.jar.descriptors.FieldDescriptor;
+import me.lowedermine.jareditor.jar.descriptors.MethodDescriptor;
 
 import java.util.Objects;
 
@@ -14,7 +14,7 @@ public class MethodHandleInfo extends ClassMemberInfo {
     }
 
     public MethodHandleInfo(int type, ClassMemberInfo info) {
-        super(info.clazz, info.desc instanceof DescriptorMethod ? new MethodInfo(info.name, (DescriptorMethod) info.desc) : new FieldInfo(info.name, (DescriptorField) info.desc));
+        super(info.clazz, info.desc instanceof MethodDescriptor ? new MethodInfo(info.name, (MethodDescriptor) info.desc) : new FieldInfo(info.name, (FieldDescriptor) info.desc));
         this.type = Type.of(type);
         if (info instanceof ClassMethodInfo)
             interfaceMethod = ((ClassMethodInfo) info).interfaceMethod;
@@ -22,7 +22,7 @@ public class MethodHandleInfo extends ClassMemberInfo {
 
     @Override
     public ClassMemberInfo getInfo() {
-        return desc instanceof DescriptorMethod ? new ClassMethodInfo(clazz, new MethodInfo(name, (DescriptorMethod) desc), interfaceMethod) : new ClassFieldInfo(clazz, new FieldInfo(name, (DescriptorField) desc));
+        return desc instanceof MethodDescriptor ? new ClassMethodInfo(clazz, new MethodInfo(name, (MethodDescriptor) desc), interfaceMethod) : new ClassFieldInfo(clazz, new FieldInfo(name, (FieldDescriptor) desc));
     }
 
     @Override

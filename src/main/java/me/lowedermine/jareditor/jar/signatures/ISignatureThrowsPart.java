@@ -17,9 +17,9 @@ public interface ISignatureThrowsPart extends ISignatureReferencePart {
     static ISignatureThrowsPart parse(String string) {
         switch (string.charAt(0)) {
             case 'L':
-                return new SignatureClassType(string.substring(1, StringUtils.indexOf(string, '<', '>', ';')));
+                return new ClassSignatureType(string.substring(1, StringUtils.indexOf(string, '<', '>', ';')));
             case 'T':
-                return new SignatureTypeVariableType(string.substring(1, string.indexOf(';')));
+                return new TypeVariableSignatureType(string.substring(1, string.indexOf(';')));
         }
         throw new SignatureException("Invalid signature type: " + string.charAt(0));
     }

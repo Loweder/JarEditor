@@ -15,9 +15,9 @@ public interface ISignatureTypeArgumentsPart {
 
     static ISignatureTypeArgumentsPart parse(String string) {
         if (string.charAt(0) == '*') {
-            return new SignatureWildcardTypeArgumentType();
+            return new WildcartTypeArgumenySignatureType();
         }
-        return new SignatureTypeArgumentType(string);
+        return new TypeArgumentSignatureType(string);
     }
 
     String toRaw();

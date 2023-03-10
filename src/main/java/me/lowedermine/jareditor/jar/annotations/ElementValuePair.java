@@ -2,7 +2,7 @@ package me.lowedermine.jareditor.jar.annotations;
 
 import me.lowedermine.jareditor.jar.constants.ConstantPool;
 import me.lowedermine.jareditor.jar.constants.ConstantPoolBuilder;
-import me.lowedermine.jareditor.jar.descriptors.DescriptorField;
+import me.lowedermine.jareditor.jar.descriptors.FieldDescriptor;
 import me.lowedermine.jareditor.jar.infos.FieldInfo;
 
 import java.io.DataInputStream;
@@ -57,7 +57,7 @@ public class ElementValuePair {
                 case ENUM:
                     String desc = (String) cp.ro(in.readUnsignedShort());
                     String name = (String) cp.ro(in.readUnsignedShort());
-                    value = new FieldInfo(name, new DescriptorField(desc));
+                    value = new FieldInfo(name, new FieldDescriptor(desc));
                     break;
                 case ANNOTATION:
                     value = new Annotation(in, cp);

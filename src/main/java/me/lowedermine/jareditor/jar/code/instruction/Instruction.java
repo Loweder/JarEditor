@@ -17,44 +17,44 @@ public abstract class Instruction {
             case NOP:
                 return new Nop();
             case ACONST_NULL:
-                return new Const(Type.OBJECT, null);
+                return new LoadDirectConst(Type.OBJECT, null);
             case ICONST_M1:
-                return new Const(Type.INTEGER, -1);
+                return new LoadDirectConst(Type.INTEGER, -1);
             case ICONST_0:
-                return new Const(Type.INTEGER, 0);
+                return new LoadDirectConst(Type.INTEGER, 0);
             case ICONST_1:
-                return new Const(Type.INTEGER, 1);
+                return new LoadDirectConst(Type.INTEGER, 1);
             case ICONST_2:
-                return new Const(Type.INTEGER, 2);
+                return new LoadDirectConst(Type.INTEGER, 2);
             case ICONST_3:
-                return new Const(Type.INTEGER, 3);
+                return new LoadDirectConst(Type.INTEGER, 3);
             case ICONST_4:
-                return new Const(Type.INTEGER, 4);
+                return new LoadDirectConst(Type.INTEGER, 4);
             case ICONST_5:
-                return new Const(Type.INTEGER, 5);
+                return new LoadDirectConst(Type.INTEGER, 5);
             case LCONST_0:
-                return new Const(Type.LONG, 0);
+                return new LoadDirectConst(Type.LONG, 0);
             case LCONST_1:
-                return new Const(Type.LONG, 1);
+                return new LoadDirectConst(Type.LONG, 1);
             case FCONST_0:
-                return new Const(Type.FLOAT, 0);
+                return new LoadDirectConst(Type.FLOAT, 0);
             case FCONST_1:
-                return new Const(Type.FLOAT, 1);
+                return new LoadDirectConst(Type.FLOAT, 1);
             case FCONST_2:
-                return new Const(Type.FLOAT, 2);
+                return new LoadDirectConst(Type.FLOAT, 2);
             case DCONST_0:
-                return new Const(Type.DOUBLE, 0);
+                return new LoadDirectConst(Type.DOUBLE, 0);
             case DCONST_1:
-                return new Const(Type.DOUBLE, 1);
+                return new LoadDirectConst(Type.DOUBLE, 1);
             case BIPUSH:
-                return new BytePush(str);
+                return new LoadDirectConst(str, Type.BYTE);
             case SIPUSH:
-                return new ShortPush(str);
+                return new LoadDirectConst(str, Type.SHORT);
             case LDC:
-                return new RawLoadConst(str, cp, false);
+                return new LoadConst.RawLoadConst(str, cp, false);
             case LDC_W:
             case LDC_2_W:
-                return new RawLoadConst(str, cp, true);
+                return new LoadConst.RawLoadConst(str, cp, true);
             case ILOAD:
                 return new AccessLocal(Type.INTEGER, str.readUnsignedByte(), false);
             case LLOAD:
@@ -188,23 +188,23 @@ public abstract class Instruction {
             case SASTORE:
                 return new AccessArray(Type.SHORT, true);
             case POP:
-                return new Pop(false);
+                return new AccessStack(false);
             case POP2:
-                return new Pop(true);
+                return new AccessStack(true);
             case DUP:
-                return new Duplicate(false, 0);
+                return new AccessStack(false, 0);
             case DUP_X1:
-                return new Duplicate(false, 1);
+                return new AccessStack(false, 1);
             case DUP_X2:
-                return new Duplicate(false, 2);
+                return new AccessStack(false, 2);
             case DUP2:
-                return new Duplicate(true, 0);
+                return new AccessStack(true, 0);
             case DUP2_X1:
-                return new Duplicate(true, 1);
+                return new AccessStack(true, 1);
             case DUP2_X2:
-                return new Duplicate(true, 2);
+                return new AccessStack(true, 2);
             case SWAP:
-                return new Swap();
+                return new AccessStack();
             case IADD:
                 return new ALU(Operation.ADD, Type.INTEGER);
             case LADD:
@@ -320,39 +320,47 @@ public abstract class Instruction {
             case DCMPG:
                 return new Compare(Type.DOUBLE, true);
             case IFEQ:
-                return new If(Condition.EQUAL, Type.NONE, str);
+                return new Jump(str, Type.NONE, Condition.EQUAL);
             case IFNE:
-                return new If(Condition.NOT_EQUAL, Type.NONE, str);
+                return new Jump(str, Type.NONE, Condition.NOT_EQUAL);
             case IFLT:
-                return new If(Condition.LESS_THEN, Type.NONE, str);
+                return new Jump(str, Type.NONE, Condition.LESS_THEN);
             case IFGE:
-                return new If(Condition.GREATER_THEN_OR_EQUAL, Type.NONE, str);
+                return new Jump(str, Type.NONE, Condition.GREATER_THEN_OR_EQUAL);
             case IFGT:
-                return new If(Condition.GREATER_THEN, Type.NONE, str);
+                return new Jump(str, Type.NONE, Condition.GREATER_THEN);
             case IFLE:
-                return new If(Condition.LESS_THEN_OR_EQUAL, Type.NONE, str);
+                return new Jump(str, Type.NONE, Condition.LESS_THEN_OR_EQUAL);
             case IF_ICMPEQ:
-                return new If(Condition.EQUAL, Type.INTEGER, str);
+                return new Jump(str, Type.INTEGER, Condition.EQUAL);
             case IF_ICMPNE:
-                return new If(Condition.NOT_EQUAL, Type.INTEGER, str);
+                return new Jump(str, Type.INTEGER, Condition.NOT_EQUAL);
             case IF_ICMPLT:
-                return new If(Condition.LESS_THEN, Type.INTEGER, str);
+                return new Jump(str, Type.INTEGER, Condition.LESS_THEN);
             case IF_ICMPGE:
-                return new If(Condition.GREATER_THEN_OR_EQUAL, Type.INTEGER, str);
+                return new Jump(str, Type.INTEGER, Condition.GREATER_THEN_OR_EQUAL);
             case IF_ICMPGT:
-                return new If(Condition.GREATER_THEN, Type.INTEGER, str);
+                return new Jump(str, Type.INTEGER, Condition.GREATER_THEN);
             case IF_ICMPLE:
-                return new If(Condition.LESS_THEN_OR_EQUAL, Type.INTEGER, str);
+                return new Jump(str, Type.INTEGER, Condition.LESS_THEN_OR_EQUAL);
             case IF_ACMPEQ:
-                return new If(Condition.EQUAL, Type.OBJECT, str);
+                return new Jump(str, Type.OBJECT, Condition.EQUAL);
             case IF_ACMPNE:
-                return new If(Condition.NOT_EQUAL, Type.OBJECT, str);
+                return new Jump(str, Type.OBJECT, Condition.NOT_EQUAL);
+            case IFNULL:
+                return new Jump(str, Type.NONE, Condition.NULL);
+            case IFNONNULL:
+                return new Jump(str, Type.NONE, Condition.NOT_NULL);
             case GOTO:
-                return new Goto(false, false, str);
+                return new Jump(true, false, str);
             case JSR:
-                return new Goto(true, false, str);
+                return new Jump(false, false, str);
+            case GOTO_W:
+                return new Jump(true, true, str);
+            case JSR_W:
+                return new Jump(false, true, str);
             case RET:
-                return new ReturnGoto(str);
+                return new JumpReturn(str);
             case TABLESWITCH:
                 return new TableSwitch(str, offset);
             case LOOKUPSWITCH:
@@ -386,37 +394,29 @@ public abstract class Instruction {
             case INVOKEINTERFACE:
                 return new InvokeMethod(InvokeType.INTERFACE, str, cp);
             case INVOKEDYNAMIC:
-                return new RawInvokeDynamic(str, cp);
+                return new InvokeDynamic.RawInvokeDynamic(str, cp);
             case NEW:
-                return new New(false, false, str, cp);
+                return new New(0, str, cp);
+            case ANEWARRAY:
+                return new New(1, str, cp);
+            case MULTIANEWARRAY:
+                return new New(2, str, cp);
             case NEWARRAY:
                 return new NewPrimitiveArray(str);
-            case ANEWARRAY:
-                return new New(true, false, str, cp);
             case ARRAYLENGTH:
                 return new ArrayLength();
             case ATHROW:
                 return new Throw();
             case CHECKCAST:
-                return new CheckCast(str, cp);
+                return new Cast(false, str, cp);
             case INSTANCEOF:
-                return new InstanceOf(str, cp);
+                return new Cast(true, str, cp);
             case MONITORENTER:
                 return new Monitor(true);
             case MONITOREXIT:
                 return new Monitor(false);
             case WIDE:
                 return new Wide(str);
-            case MULTIANEWARRAY:
-                return new New(true, true, str, cp);
-            case IFNULL:
-                return new If(Condition.NULL, Type.NONE, str);
-            case IFNONNULL:
-                return new If(Condition.NOT_NULL, Type.NONE, str);
-            case GOTO_W:
-                return new Goto(false, true, str);
-            case JSR_W:
-                return new Goto(true, true, str);
             case BREAKPOINT:
                 return new BreakPoint();
             case IMPDEP1:
@@ -662,11 +662,9 @@ public abstract class Instruction {
 
     public int toLength(ConstantPool cp) {
         if (this instanceof Nop ||
-                this instanceof Const ||
+                this instanceof LoadDirectConst && ((LoadDirectConst) this).type != Type.BYTE && ((LoadDirectConst) this).type != Type.SHORT ||
                 this instanceof AccessArray ||
-                this instanceof Pop ||
-                this instanceof Duplicate ||
-                this instanceof Swap ||
+                this instanceof AccessStack ||
                 this instanceof ALU ||
                 this instanceof TypeToType ||
                 this instanceof Compare ||
@@ -677,23 +675,21 @@ public abstract class Instruction {
                 this instanceof BreakPoint ||
                 this instanceof ImpDep) {
             return 1;
-        } else if (this instanceof BytePush ||
+        } else if (this instanceof LoadDirectConst && ((LoadDirectConst) this).type == Type.BYTE ||
                 this instanceof NewPrimitiveArray ||
-                this instanceof ReturnGoto) {
+                this instanceof JumpReturn) {
             return 2;
         } else if (this instanceof New && ((New)this).dimensions <= 1 ||
                 this instanceof Increment ||
-                this instanceof ShortPush ||
-                this instanceof If ||
+                this instanceof LoadDirectConst && ((LoadDirectConst) this).type == Type.SHORT ||
                 this instanceof AccessField ||
                 (this instanceof InvokeMethod && ((InvokeMethod) this).type != InvokeType.INTERFACE) ||
-                this instanceof CheckCast ||
-                this instanceof InstanceOf) {
+                this instanceof Cast) {
             return 3;
         } else if (this instanceof New && ((New)this).dimensions > 1) {
             return 4;
         } else if ((this instanceof InvokeMethod && ((InvokeMethod) this).type == InvokeType.INTERFACE) ||
-                this instanceof RawInvokeDynamic) {
+                this instanceof InvokeDynamic.RawInvokeDynamic) {
             return 5;
         } else if (this instanceof AccessLocal) {
             int index = ((AccessLocal) this).index;
@@ -702,9 +698,9 @@ public abstract class Instruction {
             } else {
                 return 2;
             }
-        } else if (this instanceof RawLoadConst) {
-            int index = cp.indexOf(((RawLoadConst) this).constant);
-            if (((RawLoadConst) this).wide) {
+        } else if (this instanceof LoadConst.RawLoadConst) {
+            int index = cp.indexOf(((LoadConst.RawLoadConst) this).constant);
+            if (((LoadConst.RawLoadConst) this).wide) {
                 return 3;
             } else {
                 if (index < 256) {
@@ -713,8 +709,8 @@ public abstract class Instruction {
                     return 3;
                 }
             }
-        } else if (this instanceof Goto) {
-            boolean wide = ((Goto) this).wide;
+        } else if (this instanceof Jump) {
+            boolean wide = ((Jump) this).wide;
             if (!wide)
                 return 3;
             else
@@ -737,42 +733,56 @@ public abstract class Instruction {
     public void toStream(DataOutputStream out, ConstantPool cp) throws IOException {
         if (this instanceof Nop) {
             Opcode.NOP.write(out);
-        } else if (this instanceof Const) {
-            Type type = ((Const) this).type;
-            if (type == Type.INTEGER) {
-                int value = (int) ((Const) this).value;
-                if (value == -1) Opcode.ICONST_M1.write(out);
-                else if (value == 0) Opcode.ICONST_0.write(out);
-                else if (value == 1) Opcode.ICONST_1.write(out);
-                else if (value == 2) Opcode.ICONST_2.write(out);
-                else if (value == 3) Opcode.ICONST_3.write(out);
-                else if (value == 4) Opcode.ICONST_4.write(out);
-                else if (value == 5) Opcode.ICONST_5.write(out);
-            } else if (type == Type.LONG) {
-                long value = (long) ((Const) this).value;
-                if (value == 0) Opcode.LCONST_0.write(out);
-                else if (value == 1) Opcode.LCONST_1.write(out);
-            } else if (type == Type.FLOAT) {
-                float value = (int) ((Const) this).value;
-                if (value == 0) Opcode.FCONST_0.write(out);
-                else if (value == 1) Opcode.FCONST_1.write(out);
-                else if (value == 2) Opcode.FCONST_2.write(out);
-            } else if (type == Type.DOUBLE) {
-                double value = (double) ((Const) this).value;
-                if (value == 0) Opcode.DCONST_0.write(out);
-                else if (value == 1) Opcode.DCONST_1.write(out);
-            } else if (type == Type.OBJECT) {
-                Opcode.ACONST_NULL.write(out);
+        } else if (this instanceof LoadDirectConst) {
+            Type type = ((LoadDirectConst) this).type;
+            switch (type) {
+                case INTEGER: {
+                    int value = (int) ((LoadDirectConst) this).value;
+                    if (value == -1) Opcode.ICONST_M1.write(out);
+                    else if (value == 0) Opcode.ICONST_0.write(out);
+                    else if (value == 1) Opcode.ICONST_1.write(out);
+                    else if (value == 2) Opcode.ICONST_2.write(out);
+                    else if (value == 3) Opcode.ICONST_3.write(out);
+                    else if (value == 4) Opcode.ICONST_4.write(out);
+                    else if (value == 5) Opcode.ICONST_5.write(out);
+                    break;
+                }
+                case LONG: {
+                    long value = (long) ((LoadDirectConst) this).value;
+                    if (value == 0) Opcode.LCONST_0.write(out);
+                    else if (value == 1) Opcode.LCONST_1.write(out);
+                    break;
+                }
+                case FLOAT: {
+                    float value = (int) ((LoadDirectConst) this).value;
+                    if (value == 0) Opcode.FCONST_0.write(out);
+                    else if (value == 1) Opcode.FCONST_1.write(out);
+                    else if (value == 2) Opcode.FCONST_2.write(out);
+                    break;
+                }
+                case DOUBLE: {
+                    double value = (double) ((LoadDirectConst) this).value;
+                    if (value == 0) Opcode.DCONST_0.write(out);
+                    else if (value == 1) Opcode.DCONST_1.write(out);
+                    break;
+                }
+                case OBJECT:
+                    Opcode.ACONST_NULL.write(out);
+                    break;
+                case BYTE: {
+                    Opcode.BIPUSH.write(out);
+                    out.writeByte((Integer) ((LoadDirectConst) this).value);
+                    break;
+                }
+                case SHORT: {
+                    Opcode.SIPUSH.write(out);
+                    out.writeShort((Integer) ((LoadDirectConst) this).value);
+                    break;
+                }
             }
-        } else if (this instanceof BytePush) {
-            Opcode.BIPUSH.write(out);
-            out.writeByte(((BytePush) this).value);
-        } else if (this instanceof ShortPush) {
-            Opcode.SIPUSH.write(out);
-            out.writeShort(((ShortPush) this).value);
-        } else if (this instanceof RawLoadConst) {
-            int index = cp.indexOf(((RawLoadConst) this).constant);
-            if (((RawLoadConst) this).wide) {
+        } else if (this instanceof LoadConst.RawLoadConst) {
+            int index = cp.indexOf(((LoadConst.RawLoadConst) this).constant);
+            if (((LoadConst.RawLoadConst) this).wide) {
                 Opcode.LDC_2_W.write(out);
                 out.writeShort(index);
             } else {
@@ -961,29 +971,34 @@ public abstract class Instruction {
                     Opcode.SALOAD.write(out);
                 }
             }
-        } else if (this instanceof Pop) {
-            if (((Pop) this).wide) Opcode.POP2.write(out);
-            else Opcode.POP.write(out);
-        } else if (this instanceof Duplicate) {
-            if (!((Duplicate) this).wide) {
-                if (((Duplicate) this).mode == 0) {
-                    Opcode.DUP.write(out);
-                } else if (((Duplicate) this).mode == 1) {
-                    Opcode.DUP_X1.write(out);
-                } else if (((Duplicate) this).mode == 2) {
-                    Opcode.DUP_X2.write(out);
+        } else if (this instanceof AccessStack) {
+            int type = ((AccessStack) this).opType;
+            boolean wide = ((AccessStack) this).wide;
+            if (type == 2) {
+                Opcode.SWAP.write(out);
+            } else if (type == 1) {
+                int mode = ((AccessStack) this).mode;
+                if (!wide) {
+                    if (mode == 0) {
+                        Opcode.DUP.write(out);
+                    } else if (mode == 1) {
+                        Opcode.DUP_X1.write(out);
+                    } else if (mode == 2) {
+                        Opcode.DUP_X2.write(out);
+                    }
+                } else {
+                    if (mode == 0) {
+                        Opcode.DUP2.write(out);
+                    } else if (mode == 1) {
+                        Opcode.DUP2_X1.write(out);
+                    } else if (mode == 2) {
+                        Opcode.DUP2_X2.write(out);
+                    }
                 }
             } else {
-                if (((Duplicate) this).mode == 0) {
-                    Opcode.DUP2.write(out);
-                } else if (((Duplicate) this).mode == 1) {
-                    Opcode.DUP2_X1.write(out);
-                } else if (((Duplicate) this).mode == 2) {
-                    Opcode.DUP2_X2.write(out);
-                }
+                if (wide) Opcode.POP2.write(out);
+                else Opcode.POP.write(out);
             }
-        } else if (this instanceof Swap) {
-            Opcode.SWAP.write(out);
         } else if (this instanceof ALU) {
             Type type = ((ALU) this).type;
             Operation mode = ((ALU) this).operation;
@@ -1142,76 +1157,77 @@ public abstract class Instruction {
                 if (positiveOnNAN) Opcode.FCMPG.write(out);
                 else Opcode.FCMPL.write(out);
             }
-        } else if (this instanceof If) {
-            Type type = ((If) this).type;
-            Condition condition = ((If) this).condition;
-            if (condition == Condition.EQUAL) {
-                if (type == Type.INTEGER) {
-                    Opcode.IF_ICMPEQ.write(out);
-                } else if (type == Type.OBJECT) {
-                    Opcode.IF_ACMPEQ.write(out);
+        } else if (this instanceof Jump) {
+            boolean wide = ((Jump) this).wide;
+            int opType = ((Jump) this).opType;
+            if (opType != 2) {
+                if (opType == 0) {
+                    if (wide)
+                        Opcode.JSR_W.write(out);
+                    else
+                        Opcode.JSR.write(out);
                 } else {
-                    Opcode.IFEQ.write(out);
+                    if (wide)
+                        Opcode.GOTO_W.write(out);
+                    else
+                        Opcode.GOTO.write(out);
                 }
-            } else if (condition == Condition.NOT_EQUAL) {
-                if (type == Type.INTEGER) {
-                    Opcode.IF_ICMPNE.write(out);
-                } else if (type == Type.OBJECT) {
-                    Opcode.IF_ACMPNE.write(out);
-                } else {
-                    Opcode.IFNE.write(out);
-                }
-            } else if (condition == Condition.LESS_THEN) {
-                if (type == Type.INTEGER) {
-                    Opcode.IF_ICMPLT.write(out);
-                } else {
-                    Opcode.IFLT.write(out);
-                }
-            } else if (condition == Condition.GREATER_THEN_OR_EQUAL) {
-                if (type == Type.INTEGER) {
-                    Opcode.IF_ICMPGE.write(out);
-                } else {
-                    Opcode.IFGE.write(out);
-                }
-            } else if (condition == Condition.GREATER_THEN) {
-                if (type == Type.INTEGER) {
-                    Opcode.IF_ICMPGT.write(out);
-                } else {
-                    Opcode.IFGT.write(out);
-                }
-            } else if (condition == Condition.LESS_THEN_OR_EQUAL) {
-                if (type == Type.INTEGER) {
-                    Opcode.IF_ICMPLE.write(out);
-                } else {
-                    Opcode.IFLE.write(out);
-                }
-            } else if (condition == Condition.NULL) {
-                Opcode.IFNULL.write(out);
-            } else if (condition == Condition.NOT_NULL) {
-                Opcode.IFNONNULL.write(out);
-            }
-            out.writeShort(((If) this).offset);
-        } else if (this instanceof Goto) {
-            boolean isJump = ((Goto) this).isJump;
-            boolean wide = ((Goto) this).wide;
-            if (isJump) {
-                if (wide)
-                    Opcode.JSR_W.write(out);
-                else
-                    Opcode.JSR.write(out);
             } else {
-                if (wide)
-                    Opcode.GOTO_W.write(out);
-                else
-                    Opcode.GOTO.write(out);
+                Type type = ((Jump) this).type;
+                Condition condition = ((Jump) this).condition;
+                if (condition == Condition.EQUAL) {
+                    if (type == Type.INTEGER) {
+                        Opcode.IF_ICMPEQ.write(out);
+                    } else if (type == Type.OBJECT) {
+                        Opcode.IF_ACMPEQ.write(out);
+                    } else {
+                        Opcode.IFEQ.write(out);
+                    }
+                } else if (condition == Condition.NOT_EQUAL) {
+                    if (type == Type.INTEGER) {
+                        Opcode.IF_ICMPNE.write(out);
+                    } else if (type == Type.OBJECT) {
+                        Opcode.IF_ACMPNE.write(out);
+                    } else {
+                        Opcode.IFNE.write(out);
+                    }
+                } else if (condition == Condition.LESS_THEN) {
+                    if (type == Type.INTEGER) {
+                        Opcode.IF_ICMPLT.write(out);
+                    } else {
+                        Opcode.IFLT.write(out);
+                    }
+                } else if (condition == Condition.GREATER_THEN_OR_EQUAL) {
+                    if (type == Type.INTEGER) {
+                        Opcode.IF_ICMPGE.write(out);
+                    } else {
+                        Opcode.IFGE.write(out);
+                    }
+                } else if (condition == Condition.GREATER_THEN) {
+                    if (type == Type.INTEGER) {
+                        Opcode.IF_ICMPGT.write(out);
+                    } else {
+                        Opcode.IFGT.write(out);
+                    }
+                } else if (condition == Condition.LESS_THEN_OR_EQUAL) {
+                    if (type == Type.INTEGER) {
+                        Opcode.IF_ICMPLE.write(out);
+                    } else {
+                        Opcode.IFLE.write(out);
+                    }
+                } else if (condition == Condition.NULL) {
+                    Opcode.IFNULL.write(out);
+                } else if (condition == Condition.NOT_NULL) {
+                    Opcode.IFNONNULL.write(out);
+                }
             }
             if (wide)
-                out.writeInt(((Goto) this).offset);
+                out.writeInt(((Jump) this).offset);
             else
-                out.writeShort(((Goto) this).offset);
-        } else if (this instanceof ReturnGoto) {
+                out.writeShort(((Jump) this).offset);
+        } else if (this instanceof JumpReturn) {
             Opcode.RET.write(out);
-            out.writeByte(((ReturnGoto) this).local);
+            out.writeByte(((JumpReturn) this).local);
         } else if (this instanceof TableSwitch) {
             Opcode.TABLESWITCH.write(out);
             byte[] padding = new byte[((TableSwitch) this).padding];
@@ -1280,20 +1296,21 @@ public abstract class Instruction {
                 out.writeByte(((InvokeMethod) this).count);
                 out.writeByte(0);
             }
-        } else if (this instanceof RawInvokeDynamic) {
+        } else if (this instanceof InvokeDynamic.RawInvokeDynamic) {
             Opcode.INVOKEDYNAMIC.write(out);
-            out.writeShort(cp.indexOf(((RawInvokeDynamic) this).info));
+            out.writeShort(cp.indexOf(((InvokeDynamic.RawInvokeDynamic) this).info));
             out.writeShort(0);
         } else if (this instanceof New) {
-            if (((New) this).array) {
-                if (((New) this).dimensions > 1)
+            int type = ((New) this).opType;
+            if (type != 0) {
+                if (type == 2)
                     Opcode.MULTIANEWARRAY.write(out);
                 else
                     Opcode.ANEWARRAY.write(out);
             } else
                 Opcode.NEW.write(out);
             out.writeShort(cp.indexOf(((New) this).info));
-            if (((New) this).dimensions > 1) {
+            if (type == 2) {
                 out.writeByte(((New) this).dimensions);
             }
         } else if (this instanceof NewPrimitiveArray) {
@@ -1303,12 +1320,14 @@ public abstract class Instruction {
             Opcode.ARRAYLENGTH.write(out);
         } else if (this instanceof Throw) {
             Opcode.ATHROW.write(out);
-        } else if (this instanceof CheckCast) {
-            Opcode.CHECKCAST.write(out);
-            out.writeShort(cp.indexOf(((CheckCast) this).info));
-        } else if (this instanceof InstanceOf) {
-            Opcode.INSTANCEOF.write(out);
-            out.writeShort(cp.indexOf(((InstanceOf) this).info));
+        } else if (this instanceof Cast) {
+            if (((Cast) this).check) {
+                Opcode.INSTANCEOF.write(out);
+                out.writeShort(cp.indexOf(((Cast) this).info));
+            } else {
+                Opcode.CHECKCAST.write(out);
+                out.writeShort(cp.indexOf(((Cast) this).info));
+            }
         } else if (this instanceof Monitor) {
             if (((Monitor) this).enter) Opcode.MONITORENTER.write(out);
             else Opcode.MONITOREXIT.write(out);
@@ -1336,48 +1355,21 @@ public abstract class Instruction {
 
     public void toPool(ConstantPoolBuilder cp) {}
 
-    public static class Nop extends Instruction {
-
-    }
-
-    public static class Const extends Instruction {
+    public static class LoadDirectConst extends Instruction {
         public Type type;
         public Object value;
 
-        public Const(Type type, Object value) {
+        public LoadDirectConst(Type type, Object value) {
             this.type = type;
             this.value = value;
         }
-    }
 
-    public static class BytePush extends Instruction {
-        public int value;
-
-        public BytePush(DataInputStream str) throws IOException {
-            value = str.readUnsignedByte();
-        }
-    }
-
-    public static class ShortPush extends Instruction {
-        public int value;
-
-        public ShortPush(DataInputStream str) throws IOException {
-            value = str.readUnsignedShort();
-        }
-    }
-
-    public static class RawLoadConst extends Instruction {
-        public Object constant;
-        public boolean wide;
-
-        protected RawLoadConst() {
-
-        }
-
-        public RawLoadConst(DataInputStream str, ConstantPool cp, boolean readWide) throws IOException {
-            int index = readWide ? str.readUnsignedShort() : str.readUnsignedByte();
-            constant = cp.ro(index);
-            wide = constant instanceof Double || constant instanceof Long;
+        public LoadDirectConst(DataInputStream str, Type type) throws IOException {
+            this.type = type;
+            if (type == Type.BYTE)
+                this.value = str.readUnsignedByte();
+            else
+                this.value = str.readUnsignedShort();
         }
     }
 
@@ -1419,6 +1411,21 @@ public abstract class Instruction {
                 cp.add(new BootstrapFieldInfo(methods.indexOf(fConstant), info));
             }
         }
+
+        public static class RawLoadConst extends Instruction {
+            public Object constant;
+            public boolean wide;
+
+            protected RawLoadConst() {
+
+            }
+
+            public RawLoadConst(DataInputStream str, ConstantPool cp, boolean readWide) throws IOException {
+                int index = readWide ? str.readUnsignedShort() : str.readUnsignedByte();
+                constant = cp.ro(index);
+                wide = constant instanceof Double || constant instanceof Long;
+            }
+        }
     }
 
     public static class AccessLocal extends Instruction {
@@ -1443,26 +1450,100 @@ public abstract class Instruction {
         }
     }
 
-    public static class Pop extends Instruction {
-        public boolean wide;
+    public static class AccessStack extends Instruction {
+        public int opType = 0;
+        public boolean wide = false;
+        public int mode = 0;
 
-        public Pop(boolean wide) {
+        public AccessStack(boolean wide) {
             this.wide = wide;
         }
-    }
 
-    public static class Duplicate extends Instruction {
-        public boolean wide;
-        public int mode;
-
-        public Duplicate(boolean wide, int mode) {
+        public AccessStack(boolean wide, int mode) {
+            this.opType = 1;
             this.wide = wide;
             this.mode = mode;
         }
+
+        public AccessStack() {
+            this.opType = 2;
+        }
     }
 
-    public static class Swap extends Instruction {
+    public static class AccessField extends Instruction {
+        public ClassFieldInfo info;
+        public boolean isStatic;
+        public boolean put;
+
+        public AccessField(boolean isStatic, boolean put, DataInputStream str, ConstantPool cp) throws IOException {
+            info = (ClassFieldInfo) cp.ro(str.readUnsignedShort());
+            this.isStatic = isStatic;
+            this.put = put;
+        }
+
+        @Override
+        public void toPool(ConstantPoolBuilder cp) {
+            cp.add(info);
+        }
     }
+
+    public static class InvokeMethod extends Instruction {
+        public ClassMethodInfo info;
+        public int count = 0;
+        public InvokeType type;
+
+        public InvokeMethod(InvokeType type, DataInputStream str, ConstantPool cp) throws IOException {
+            info = (ClassMethodInfo) cp.ro(str.readUnsignedShort());
+            this.type = type;
+            if (type == InvokeType.INTERFACE) {
+                count = str.readUnsignedByte();
+                str.readUnsignedByte();
+            }
+        }
+
+        @Override
+        public void toPool(ConstantPoolBuilder cp) {
+            cp.add(info);
+        }
+    }
+
+    public static class InvokeDynamic extends Instruction {
+        public ClassFile.BootstrapMethod method;
+        public MethodInfo info;
+
+        public InvokeDynamic(RawInvokeDynamic raw, ClassFile.BootstrapMethod[] methods) {
+            method = methods[raw.info.index].clone();
+            info = raw.info.getInfo();
+        }
+
+        public RawInvokeDynamic toRaw(List<ClassFile.BootstrapMethod> methods) {
+            RawInvokeDynamic newRaw = new RawInvokeDynamic();
+            if (!methods.contains(method)) methods.add(method);
+            newRaw.info = new BootstrapMethodInfo(methods.indexOf(method), info);
+            return newRaw;
+        }
+
+        public void toPool(ConstantPoolBuilder cp, List<ClassFile.BootstrapMethod> methods) {
+            cp.add("BootstrapMethods");
+            method.toPool(cp);
+            if (!methods.contains(method)) methods.add(method);
+            cp.add(new BootstrapMethodInfo(methods.indexOf(method), info));
+        }
+
+        public static class RawInvokeDynamic extends Instruction {
+            public BootstrapMethodInfo info;
+
+            protected RawInvokeDynamic() {
+
+            }
+
+            public RawInvokeDynamic(DataInputStream str, ConstantPool cp) throws IOException {
+                info = (BootstrapMethodInfo) cp.ro(str.readUnsignedShort());
+                str.readUnsignedShort();
+            }
+        }
+    }
+
 
     public static class ALU extends Instruction {
         public Operation operation;
@@ -1504,34 +1585,32 @@ public abstract class Instruction {
         }
     }
 
-    public static class If extends Instruction {
-        public Condition condition;
-        public Type type;
+
+    public static class Jump extends Instruction {
+        public int opType;
         public int offset;
+        public boolean wide = false;
+        public Condition condition = null;
+        public Type type = null;
 
-        public If(Condition condition, Type type, DataInputStream str) throws IOException {
-            this.condition = condition;
-            this.type = type;
-            offset = str.readShort();
-        }
-    }
-
-    public static class Goto extends Instruction {
-        public boolean isJump;
-        public boolean wide;
-        public int offset;
-
-        public Goto(boolean isJump, boolean wide, DataInputStream str) throws IOException {
+        public Jump(boolean isGoto, boolean wide, DataInputStream str) throws IOException {
+            this.opType = isGoto ? 1 : 0;
             this.offset = wide ? str.readInt() : str.readShort();
-            this.isJump = isJump;
             this.wide = wide;
         }
+
+        public Jump(DataInputStream str, Type type, Condition condition) throws IOException {
+            this.opType = 2;
+            this.condition = condition;
+            this.type = type;
+            this.offset = str.readShort();
+        }
     }
 
-    public static class ReturnGoto extends Instruction {
+    public static class JumpReturn extends Instruction {
         public int local;
 
-        public ReturnGoto(DataInputStream str) throws IOException {
+        public JumpReturn(DataInputStream str) throws IOException {
             local = str.readUnsignedByte();
         }
     }
@@ -1568,7 +1647,7 @@ public abstract class Instruction {
             {
                 int ignored = str.read(buff, 0, (highRange - lowRange + 1) * 4);
             }
-            return 12 + padding + (highRange - lowRange + 1) * 4;
+            return 13 + padding + (highRange - lowRange + 1) * 4;
         }
     }
 
@@ -1595,7 +1674,7 @@ public abstract class Instruction {
             byte[] buff = new byte[padding + 4];
             int ignored = str.read(buff, 0, padding + 4);
             int pairs = str.readInt();
-            return 8 + padding + pairs * 8;
+            return 9 + padding + pairs * 8;
         }
 
         public static class Pair {
@@ -1617,89 +1696,16 @@ public abstract class Instruction {
         }
     }
 
-    public static class AccessField extends Instruction {
-        public ClassFieldInfo info;
-        public boolean isStatic;
-        public boolean put;
-
-        public AccessField(boolean isStatic, boolean put, DataInputStream str, ConstantPool cp) throws IOException {
-            info = (ClassFieldInfo) cp.ro(str.readUnsignedShort());
-            this.isStatic = isStatic;
-            this.put = put;
-        }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {
-            cp.add(info);
-        }
-    }
-
-    public static class InvokeMethod extends Instruction {
-        public ClassMethodInfo info;
-        public int count = 0;
-        public InvokeType type;
-
-        public InvokeMethod(InvokeType type, DataInputStream str, ConstantPool cp) throws IOException {
-            info = (ClassMethodInfo) cp.ro(str.readUnsignedShort());
-            this.type = type;
-            if (type == InvokeType.INTERFACE) {
-                count = str.readUnsignedByte();
-                str.readUnsignedByte();
-            }
-        }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {
-            cp.add(info);
-        }
-    }
-
-    public static class RawInvokeDynamic extends Instruction {
-        public BootstrapMethodInfo info;
-
-        protected RawInvokeDynamic() {
-
-        }
-
-        public RawInvokeDynamic(DataInputStream str, ConstantPool cp) throws IOException {
-            info = (BootstrapMethodInfo) cp.ro(str.readUnsignedShort());
-            str.readUnsignedShort();
-        }
-    }
-
-    public static class InvokeDynamic extends Instruction {
-        public ClassFile.BootstrapMethod method;
-        public MethodInfo info;
-
-        public InvokeDynamic(RawInvokeDynamic raw, ClassFile.BootstrapMethod[] methods) {
-            method = methods[raw.info.index].clone();
-            info = raw.info.getInfo();
-        }
-
-        public RawInvokeDynamic toRaw(List<ClassFile.BootstrapMethod> methods) {
-            RawInvokeDynamic newRaw = new RawInvokeDynamic();
-            if (!methods.contains(method)) methods.add(method);
-            newRaw.info = new BootstrapMethodInfo(methods.indexOf(method), info);
-            return newRaw;
-        }
-
-        public void toPool(ConstantPoolBuilder cp, List<ClassFile.BootstrapMethod> methods) {
-            cp.add("BootstrapMethods");
-            method.toPool(cp);
-            if (!methods.contains(method)) methods.add(method);
-            cp.add(new BootstrapMethodInfo(methods.indexOf(method), info));
-        }
-    }
 
     public static class New extends Instruction {
         public ClassInfo info;
-        public boolean array;
-        public int dimensions = 1;
+        public int opType;
+        public int dimensions = 0;
 
-        public New(boolean array, boolean multiDim, DataInputStream str, ConstantPool cp) throws IOException {
+        public New(int opType, DataInputStream str, ConstantPool cp) throws IOException {
             info = (ClassInfo) cp.ro(str.readUnsignedShort());
-            this.array = array;
-            if (array && multiDim) dimensions = str.readUnsignedByte();
+            this.opType = opType;
+            if (opType == 2) dimensions = str.readUnsignedByte();
         }
 
         @Override
@@ -1716,45 +1722,6 @@ public abstract class Instruction {
         }
     }
 
-    public static class ArrayLength extends Instruction {
-    }
-
-    public static class Throw extends Instruction {
-    }
-
-    public static class CheckCast extends Instruction {
-        public ClassInfo info;
-
-        public CheckCast(DataInputStream str, ConstantPool cp) throws IOException {
-            info = (ClassInfo) cp.ro(str.readUnsignedShort());
-        }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {
-            cp.add(info);
-        }
-    }
-
-    public static class InstanceOf extends Instruction {
-        public ClassInfo info;
-
-        public InstanceOf(DataInputStream str, ConstantPool cp) throws IOException {
-            info = (ClassInfo) cp.ro(str.readUnsignedShort());
-        }
-
-        @Override
-        public void toPool(ConstantPoolBuilder cp) {
-            cp.add(info);
-        }
-    }
-
-    public static class Monitor extends Instruction {
-        public boolean enter;
-
-        public Monitor(boolean enter) {
-            this.enter = enter;
-        }
-    }
 
     public static class Wide extends Instruction {
         public boolean isIncrement;
@@ -1774,7 +1741,40 @@ public abstract class Instruction {
         }
     }
 
+
+    public static class Nop extends Instruction {
+    }
+
     public static class BreakPoint extends Instruction {
+    }
+
+    public static class ArrayLength extends Instruction {
+    }
+
+    public static class Throw extends Instruction {
+    }
+
+    public static class Cast extends Instruction {
+        public boolean check;
+        public ClassInfo info;
+
+        public Cast(boolean check, DataInputStream str, ConstantPool cp) throws IOException {
+            this.check = check;
+            info = (ClassInfo) cp.ro(str.readUnsignedShort());
+        }
+
+        @Override
+        public void toPool(ConstantPoolBuilder cp) {
+            cp.add(info);
+        }
+    }
+
+    public static class Monitor extends Instruction {
+        public boolean enter;
+
+        public Monitor(boolean enter) {
+            this.enter = enter;
+        }
     }
 
     public static class ImpDep extends Instruction {
@@ -1801,6 +1801,7 @@ public abstract class Instruction {
         VIRTUAL, SPECIAL, STATIC, INTERFACE
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     public enum Opcode {
         NOP(0), ACONST_NULL(1), ICONST_M1(2),
         ICONST_0(3), ICONST_1(4), ICONST_2(5), ICONST_3(6), ICONST_4(7), ICONST_5(8), LCONST_0(9), LCONST_1(0xA), FCONST_0(0xB), FCONST_1(0xC), FCONST_2(0xD), DCONST_0(0xE), DCONST_1(0xF),

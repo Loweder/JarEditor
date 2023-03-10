@@ -1,6 +1,6 @@
 package me.lowedermine.jareditor.jar.constants;
 
-import me.lowedermine.jareditor.jar.descriptors.DescriptorMethod;
+import me.lowedermine.jareditor.jar.descriptors.MethodDescriptor;
 import me.lowedermine.jareditor.jar.infos.*;
 
 import java.util.ArrayList;
@@ -17,95 +17,99 @@ public class ConstantPoolBuilder {
 
     public int add(Object o) {
         if (o instanceof ClassInfo) {
-            ConstantClass constant = new ConstantClass();
+            ClassConstant constant = new ClassConstant();
             constant.name = add(((ClassInfo) o).toRaw());
             return add0(constant);
         } else if (o instanceof Integer) {
-            ConstantInteger constant = new ConstantInteger();
+            IntegerConstant constant = new IntegerConstant();
             constant.value = (int) o;
             return add0(constant);
         } else if (o instanceof Long) {
-            ConstantLong constant = new ConstantLong();
+            LongConstant constant = new LongConstant();
             constant.value = (long) o;
             return add0(constant);
         } else if (o instanceof Float) {
-            ConstantFloat constant = new ConstantFloat();
+            FloatConstant constant = new FloatConstant();
             constant.value = (float) o;
             return add0(constant);
         } else if (o instanceof Double) {
-            ConstantDouble constant = new ConstantDouble();
+            DoubleConstant constant = new DoubleConstant();
             constant.value = (double) o;
             return add0(constant);
         } else if (o instanceof BootstrapFieldInfo) {
-            ConstantDynamic constant = new ConstantDynamic();
+            DynamicConstant constant = new DynamicConstant();
             constant.methodAttr = ((BootstrapFieldInfo) o).index;
             constant.nameAndType = add(((BootstrapFieldInfo) o).getInfo());
             return add0(constant);
         } else if (o instanceof BootstrapMethodInfo) {
-            ConstantInvokeDynamic constant = new ConstantInvokeDynamic();
+            InvokeDynamicConstant constant = new InvokeDynamicConstant();
             constant.methodAttr = ((BootstrapMethodInfo) o).index;
             constant.nameAndType = add(((BootstrapMethodInfo) o).getInfo());
             return add0(constant);
         } else if (o instanceof ClassFieldInfo) {
-            ConstantFieldRef constant = new ConstantFieldRef();
+            FieldRefConstant constant = new FieldRefConstant();
             constant.clazz = add(((ClassFieldInfo) o).clazz);
             constant.nameAndType = add(((ClassFieldInfo) o).getInfo());
             return add0(constant);
         } else if (o instanceof ClassMethodInfo) {
             if (((ClassMethodInfo) o).interfaceMethod) {
-                ConstantIMethodRef constant = new ConstantIMethodRef();
+                IMethodRefConstant constant = new IMethodRefConstant();
                 constant.clazz = add(((ClassMethodInfo) o).clazz);
                 constant.nameAndType = add(((ClassMethodInfo) o).getInfo());
                 return add0(constant);
             }
-            ConstantMethodRef constant = new ConstantMethodRef();
+            MethodRefConstant constant = new MethodRefConstant();
             constant.clazz = add(((ClassMethodInfo) o).clazz);
             constant.nameAndType = add(((ClassMethodInfo) o).getInfo());
             return add0(constant);
         } else if (o instanceof FieldInfo) {
-            ConstantNameAndType constant = new ConstantNameAndType();
+            NameAndTypeConstant constant = new NameAndTypeConstant();
             constant.name = add(((FieldInfo) o).name);
             constant.type = add(((FieldInfo) o).desc.toRaw());
             return add0(constant);
         } else if (o instanceof MethodInfo) {
-            ConstantNameAndType constant = new ConstantNameAndType();
+            NameAndTypeConstant constant = new NameAndTypeConstant();
             constant.name = add(((MethodInfo) o).name);
             constant.type = add(((MethodInfo) o).desc.toRaw());
             return add0(constant);
         } else if (o instanceof MethodHandleInfo) {
-            ConstantMethodHandle constant = new ConstantMethodHandle();
+            MethodHandleConstant constant = new MethodHandleConstant();
             constant.referenceKind = ((MethodHandleInfo) o).type.to();
             constant.referenceValue = add(((MethodHandleInfo) o).getInfo());
             return add0(constant);
-        } else if (o instanceof DescriptorMethod) {
-            ConstantMethodType constant = new ConstantMethodType();
-            constant.descriptor = add(((DescriptorMethod) o).toRaw());
+        } else if (o instanceof MethodDescriptor) {
+            MethodTypeConstant constant = new MethodTypeConstant();
+            constant.descriptor = add(((MethodDescriptor) o).toRaw());
             return add0(constant);
         } else if (o instanceof ModuleInfo) {
-            ConstantModule constant = new ConstantModule();
+            ModuleConstant constant = new ModuleConstant();
             constant.name = add(((ModuleInfo) o).toRaw());
             return add0(constant);
         } else if (o instanceof PackageInfo) {
-            ConstantPackage constant = new ConstantPackage();
+            PackageConstant constant = new PackageConstant();
             constant.name = add(((PackageInfo) o).toRaw());
             return add0(constant);
         } else if (o instanceof StringInfo) {
-            ConstantString constant = new ConstantString();
+            StringConstant constant = new StringConstant();
             constant.string = add(((StringInfo) o).value);
             return add0(constant);
         } else if (o instanceof String) {
-            ConstantUtf8 constant = new ConstantUtf8();
+            Utf8Constant constant = new Utf8Constant();
             constant.value = (String) o;
             return add0(constant);
         } else if (o == null) {
-            ConstantNullPtr constant = new ConstantNullPtr();
+            NullConstant constant = new NullConstant();
             return add0(constant);
         }
         return 0;
     }
 
     private int add0(IConstant constant) {
-        if (!raw.contains(constant)) raw.add(constant);
+        if (!raw.contains(constant)) {
+            raw.add(constant);
+            if (constant instanceof DoubleConstant || constant instanceof LongConstant)
+                raw.add(new NullConstant());
+        }
         return raw.indexOf(constant);
     }
 

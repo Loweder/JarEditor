@@ -1,10 +1,10 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.utils.MyCloneable;
+import me.lowedermine.jareditor.utils.IMyCloneable;
 
 import java.util.Arrays;
 
-public class ModuleInfo implements MyCloneable {
+public class ModuleInfo implements IMyCloneable {
     public String[] name;
 
     public ModuleInfo(String in) {

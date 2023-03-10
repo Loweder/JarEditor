@@ -9,39 +9,39 @@ public interface IConstant {
         int tag = in.readByte();
         switch (tag) {
             case 1:
-                return new ConstantUtf8(in);
+                return new Utf8Constant(in);
             case 3:
-                return new ConstantInteger(in);
+                return new IntegerConstant(in);
             case 4:
-                return new ConstantFloat(in);
+                return new FloatConstant(in);
             case 5:
-                return new ConstantLong(in);
+                return new LongConstant(in);
             case 6:
-                return new ConstantDouble(in);
+                return new DoubleConstant(in);
             case 7:
-                return new ConstantClass(in);
+                return new ClassConstant(in);
             case 8:
-                return new ConstantString(in);
+                return new StringConstant(in);
             case 9:
-                return new ConstantFieldRef(in);
+                return new FieldRefConstant(in);
             case 10:
-                return new ConstantMethodRef(in);
+                return new MethodRefConstant(in);
             case 11:
-                return new ConstantIMethodRef(in);
+                return new IMethodRefConstant(in);
             case 12:
-                return new ConstantNameAndType(in);
+                return new NameAndTypeConstant(in);
             case 15:
-                return new ConstantMethodHandle(in);
+                return new MethodHandleConstant(in);
             case 16:
-                return new ConstantMethodType(in);
+                return new MethodTypeConstant(in);
             case 17:
-                return new ConstantDynamic(in);
+                return new DynamicConstant(in);
             case 18:
-                return new ConstantInvokeDynamic(in);
+                return new InvokeDynamicConstant(in);
             case 19:
-                return new ConstantModule(in);
+                return new ModuleConstant(in);
             case 20:
-                return new ConstantPackage(in);
+                return new PackageConstant(in);
             default:
                 throw new IOException("Class resolving error: unknown constant type " + tag);
         }

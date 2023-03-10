@@ -1,6 +1,6 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.jar.descriptors.DescriptorField;
+import me.lowedermine.jareditor.jar.descriptors.FieldDescriptor;
 
 public class ClassFieldInfo extends ClassMemberInfo {
     public ClassFieldInfo(ClassInfo inClass, MemberInfo inInfo) {
@@ -9,6 +9,6 @@ public class ClassFieldInfo extends ClassMemberInfo {
 
     @Override
     public FieldInfo getInfo() {
-        return new FieldInfo(name, (DescriptorField) desc);
+        return new FieldInfo(name, (FieldDescriptor) desc);
     }
 }

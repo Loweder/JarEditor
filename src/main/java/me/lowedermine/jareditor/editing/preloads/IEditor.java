@@ -1,13 +1,18 @@
 package me.lowedermine.jareditor.editing.preloads;
 
+import me.lowedermine.jareditor.EditingClassloader;
 import me.lowedermine.jareditor.jar.ClassFile;
+import me.lowedermine.jareditor.jar.infos.ClassInfo;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public interface IEditor {
 
-    List<String> getEdited();
+    default void acceptClassloader(@NotNull EditingClassloader loader) {}
 
-    @NotNull ClassFile edit(@NotNull ClassFile file);
+    default @Nullable ClassInfo[] getEdited() {
+        return null;
+    }
+
+    @Nullable ClassFile apply(@Nullable ClassFile file);
 }

@@ -1,10 +1,10 @@
 package me.lowedermine.jareditor.jar.infos;
 
-import me.lowedermine.jareditor.utils.MyCloneable;
+import me.lowedermine.jareditor.utils.IMyCloneable;
 
 import java.util.Objects;
 
-public class StringInfo implements MyCloneable {
+public class StringInfo implements IMyCloneable {
     public String value;
 
     public StringInfo(String value) {

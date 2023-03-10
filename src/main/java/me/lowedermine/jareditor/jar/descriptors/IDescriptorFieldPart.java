@@ -25,25 +25,25 @@ public interface IDescriptorFieldPart extends IDescriptorReturnPart {
     static IDescriptorFieldPart parse(String string) {
         switch (string.charAt(0)) {
             case 'B':
-                return DescriptorBaseType.BYTE;
+                return PrimitiveDescriptorType.BYTE;
             case 'C':
-                return DescriptorBaseType.CHAR;
+                return PrimitiveDescriptorType.CHAR;
             case 'D':
-                return DescriptorBaseType.DOUBLE;
+                return PrimitiveDescriptorType.DOUBLE;
             case 'F':
-                return DescriptorBaseType.FLOAT;
+                return PrimitiveDescriptorType.FLOAT;
             case 'I':
-                return DescriptorBaseType.INT;
+                return PrimitiveDescriptorType.INT;
             case 'J':
-                return DescriptorBaseType.LONG;
+                return PrimitiveDescriptorType.LONG;
             case 'S':
-                return DescriptorBaseType.SHORT;
+                return PrimitiveDescriptorType.SHORT;
             case 'Z':
-                return DescriptorBaseType.BOOLEAN;
+                return PrimitiveDescriptorType.BOOLEAN;
             case 'L':
-                return new DescriptorObjectType(string.substring(1, string.indexOf(';')));
+                return new ObjectDescriptorType(string.substring(1, string.indexOf(';')));
             case '[':
-                return new DescriptorArrayType(string.substring(1));
+                return new ArrayDescriptorType(string.substring(1));
         }
         throw new DescriptorException("Invalid descriptor type: " + string.charAt(0));
     }

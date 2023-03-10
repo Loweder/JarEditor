@@ -3,6 +3,7 @@ package me.lowdy.testing.control;
 import me.lowedermine.jareditor.EditingClassloader;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class TestIT {
@@ -22,6 +23,16 @@ public class TestIT {
         Thread[] t = Thread.getAllStackTraces().keySet().toArray(new Thread[0]);
         for (Thread thread : t) {
             if (thread.getName().equals("ServerMain")) thread.join();
+        }
+    }
+
+    @Test
+    void test3() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        try (EditingClassloader loader = new EditingClassloader(TestIT.class.getClassLoader())) {
+            Class<?> found = loader.loadClass("me.lowdy.testing.MyProgram");
+            found.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
